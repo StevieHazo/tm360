@@ -1,5 +1,5 @@
-TM360 OFFICIAL Grant Ready Linked Release
+TM360 OFFICIAL Wellbeing Integrated V6
 
-No folders. Replace the current repository contents with these extracted files. Upload every file to the GitHub repository root, not the ZIP. Vercel will redeploy automatically.
+No folders. Replace the GitHub repository contents with every extracted file. Upload files directly to the repository root, not the ZIP. Vercel will redeploy automatically.
 
-Grant Ready is linked from the main navigation, homepage funding section, every funding card, Funding Hub call-to-action and footer.
+The Tonic partnership is described as proposed / being explored and subject to formal agreement. TM360 is not described as a clinical or crisis service.
