@@ -1,23 +1,7 @@
-TM360 OFFICIAL - GitHub and Vercel ready
+TM360 OFFICIAL Funding-First V3
 
-FLAT FILE STRUCTURE: There are no folders. Upload all files directly into the root of the GitHub repository.
+No folders. Upload every extracted file directly to the root of the GitHub repository. Do not upload the ZIP itself.
 
-FILES
-index.html
-about.html
-services.html
-funding.html
-mutant-menace.html
-contact.html
-style.css
-site.js
+Vercel: Framework Preset Other. Leave Root Directory, Build Command and Output Directory blank.
 
-VERCEL
-Framework preset: Other
-Root directory: leave blank
-Build command: leave blank
-Output directory: leave blank
-
-The HTML uses style.css and site.js from the repository root.
-
-Before public launch, replace the placeholder email if required and connect the contact form to a proper form-handling service.
+The Artist Profile is currently a privacy-safe front-end prototype and deliberately does not store submissions. Connect it to an approved secure form service and add a privacy notice before collecting personal data.
