@@ -1,7 +1,5 @@
-TM360 OFFICIAL Balanced V4
+TM360 OFFICIAL Grant Ready Linked Release
 
-No folders. Upload every extracted file directly to the GitHub repository root. Do not upload the ZIP.
+No folders. Replace the current repository contents with these extracted files. Upload every file to the GitHub repository root, not the ZIP. Vercel will redeploy automatically.
 
-Vercel: Framework Preset Other. Leave Root Directory, Build Command and Output Directory blank.
-
-The Artist Profile is a non-storing prototype. Connect it to a secure form service and add privacy/consent controls before collecting personal data.
+Grant Ready is linked from the main navigation, homepage funding section, every funding card, Funding Hub call-to-action and footer.
