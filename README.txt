@@ -1,5 +1,10 @@
-TM360° OFFICIAL Market Positioned V9
+TM360° OFFICIAL Touring Tools V1
 
-Flat structure. Replace the GitHub repository contents with all extracted files in the root. Do not upload the ZIP itself. Vercel should redeploy automatically.
+Upload all extracted files directly into the GitHub repository root:
+- touring-tools.html
+- touring-tools.css
+- touring-tools.js
+- resources.html (replace existing)
+- TM360_OFFICIAL_logo.png
 
-V9 implements the competitor-analysis outcomes: focused market position, service packages, transparent pricing structure, direct audience language, founder-led model, associate network, resource hub, evidence-led case study, competitor differentiation, and SEO landing pages.
+No folders are required. This replaces the Office downloads with one browser app. Data is stored locally in the browser and can be exported/imported as JSON.
