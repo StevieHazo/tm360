@@ -1,5 +1,5 @@
-TM360 OFFICIAL Modern Music V8
+TM360° OFFICIAL Market Positioned V9
 
-Flat structure, no folders. Replace repository files with all extracted files. Upload directly to the GitHub repository root. Vercel should redeploy automatically.
+Flat structure. Replace the GitHub repository contents with all extracted files in the root. Do not upload the ZIP itself. Vercel should redeploy automatically.
 
-This build includes three generated visual assets and a complete dark, image-led redesign while retaining the Tour Management, Funding, Grant Ready and Wellbeing functions.
+V9 implements the competitor-analysis outcomes: focused market position, service packages, transparent pricing structure, direct audience language, founder-led model, associate network, resource hub, evidence-led case study, competitor differentiation, and SEO landing pages.
