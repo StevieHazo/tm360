@@ -1,6 +1,35 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
+  const SITE_EMAIL = 'info@tm360.uk';
+
+  /* Standardise every email link and mailto form across the site. */
+  document.querySelectorAll('a[href^="mailto:"]').forEach(function (link) {
+    const current = link.getAttribute('href') || '';
+    const query = current.includes('?') ? current.slice(current.indexOf('?')) : '';
+    link.setAttribute('href', 'mailto:' + SITE_EMAIL + query);
+
+    const visible = (link.textContent || '').trim();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(visible)) {
+      link.textContent = SITE_EMAIL;
+    }
+  });
+
+  document.querySelectorAll('form[action^="mailto:"]').forEach(function (form) {
+    form.setAttribute('action', 'mailto:' + SITE_EMAIL);
+  });
+
+  /* Replace visible legacy TM360 email addresses without changing user-entered form data. */
+  const emailPattern = /(?:hello|contact|info|stevie|steve)@(?:tm360\.uk|tm360\.co\.uk|tourmanagement360\.uk|soswifi\.uk)/gi;
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) textNodes.push(walker.currentNode);
+  textNodes.forEach(function (node) {
+    const parent = node.parentElement;
+    if (!parent || parent.closest('script, style, textarea, input, option, code, pre')) return;
+    node.nodeValue = node.nodeValue.replace(emailPattern, SITE_EMAIL);
+  });
+
   const relatedStyles = document.createElement('link');
   relatedStyles.rel = 'stylesheet';
   relatedStyles.href = 'related-guides.css';
@@ -30,78 +59,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   const guides = {
-    independent: {
-      title: 'Tour management for independent bands',
-      description: 'What professional support looks like when a band has outgrown running everything from the stage.',
-      url: 'tour-management-independent-bands.html',
-      category: 'Tour Management'
-    },
-    unsigned: {
-      title: 'Tour management for unsigned artists',
-      description: 'Professional touring does not need to wait for a record deal.',
-      url: 'tour-management-unsigned-artists.html',
-      category: 'Tour Management'
-    },
-    grassroots: {
-      title: 'Grassroots tour management',
-      description: 'Practical support for small crews, tight budgets and original artists.',
-      url: 'grassroots-tour-management.html',
-      category: 'Tour Management'
-    },
-    advancing: {
-      title: 'How band tour advancing works',
-      description: 'The venue, timetable, technical, hospitality and payment details to confirm before departure.',
-      url: 'band-tour-advancing.html',
-      category: 'Advancing'
-    },
-    budgeting: {
-      title: 'UK tour budgeting for independent bands',
-      description: 'Understand the likely income, costs, cashflow and shortfall before committing to the road.',
-      url: 'uk-tour-budgeting.html',
-      category: 'Finance'
-    },
-    funding: {
-      title: 'Funding your UK tour',
-      description: 'Turn the activity, evidence and budget into a credible funding plan.',
-      url: 'funding-your-uk-tour.html',
-      category: 'Funding'
-    },
-    driver: {
-      title: 'Tour manager and driver package',
-      description: 'Combined operational control and driving for suitable grassroots touring parties.',
-      url: 'tour-manager-driver-package.html',
-      category: 'Packages'
-    },
-    transport: {
-      title: 'Band van and trailer package',
-      description: 'Dedicated transport for the touring party and equipment.',
-      url: 'band-van-trailer-package.html',
-      category: 'Transport'
-    },
-    wellbeing: {
-      title: 'Artist wellbeing on tour',
-      description: 'How rest, access, communication and pressure can be included in the actual touring plan.',
-      url: 'artist-wellbeing-on-tour.html',
-      category: 'Wellbeing'
-    },
-    headline: {
-      title: 'Planning your first UK headline tour',
-      description: 'A practical step from scattered gigs to a properly planned touring run.',
-      url: 'first-uk-headline-tour.html',
-      category: 'Planning'
-    },
-    weekend: {
-      title: 'Weekend tour management',
-      description: 'Professional preparation and road support for a compact run of shows.',
-      url: 'weekend-tour-management.html',
-      category: 'Packages'
-    },
-    album: {
-      title: 'Planning an album-release tour',
-      description: 'Connect the live run to the release campaign without losing control of delivery.',
-      url: 'album-release-tour-planning.html',
-      category: 'Planning'
-    }
+    independent: ['Tour management for independent bands', 'What professional support looks like when a band has outgrown running everything from the stage.', 'tour-management-independent-bands.html', 'Tour Management'],
+    unsigned: ['Tour management for unsigned artists', 'Professional touring does not need to wait for a record deal.', 'tour-management-unsigned-artists.html', 'Tour Management'],
+    grassroots: ['Grassroots tour management', 'Practical support for small crews, tight budgets and original artists.', 'grassroots-tour-management.html', 'Tour Management'],
+    advancing: ['How band tour advancing works', 'The venue, timetable, technical, hospitality and payment details to confirm before departure.', 'band-tour-advancing.html', 'Advancing'],
+    budgeting: ['UK tour budgeting for independent bands', 'Understand the likely income, costs, cashflow and shortfall before committing to the road.', 'uk-tour-budgeting.html', 'Finance'],
+    funding: ['Funding your UK tour', 'Turn the activity, evidence and budget into a credible funding plan.', 'funding-your-uk-tour.html', 'Funding'],
+    driver: ['Tour manager and driver package', 'Combined operational control and driving for suitable grassroots touring parties.', 'tour-manager-driver-package.html', 'Packages'],
+    transport: ['Band van and trailer package', 'Dedicated transport for the touring party and equipment.', 'band-van-trailer-package.html', 'Transport'],
+    wellbeing: ['Artist wellbeing on tour', 'How rest, access, communication and pressure can be included in the actual touring plan.', 'artist-wellbeing-on-tour.html', 'Wellbeing'],
+    headline: ['Planning your first UK headline tour', 'A practical step from scattered gigs to a properly planned touring run.', 'first-uk-headline-tour.html', 'Planning'],
+    weekend: ['Weekend tour management', 'Professional preparation and road support for a compact run of shows.', 'weekend-tour-management.html', 'Packages'],
+    album: ['Planning an album-release tour', 'Connect the live run to the release campaign without losing control of delivery.', 'album-release-tour-planning.html', 'Planning']
   };
 
   const pathname = window.location.pathname.split('/').pop() || 'index.html';
@@ -117,25 +86,17 @@ document.addEventListener('DOMContentLoaded', function () {
   function createGuideSection(keys, homepage) {
     const section = document.createElement('section');
     section.className = homepage ? 'related-guides related-guides-home' : 'related-guides';
-
     const cards = keys.map(function (key) {
-      const guide = guides[key];
-      return '<a class="related-guide-card" href="' + guide.url + '">' +
-        '<span class="related-guide-category">' + guide.category + '</span>' +
-        '<h3>' + guide.title + '</h3>' +
-        '<p>' + guide.description + '</p>' +
-        '<strong>Read guide →</strong>' +
-      '</a>';
+      const g = guides[key];
+      return '<a class="related-guide-card" href="' + g[2] + '">' +
+        '<span class="related-guide-category">' + g[3] + '</span>' +
+        '<h3>' + g[0] + '</h3><p>' + g[1] + '</p><strong>Read guide →</strong></a>';
     }).join('');
-
-    section.innerHTML = '<div class="wrap">' +
-      '<div class="related-guide-heading">' +
-        '<div><p class="eyebrow">' + (homepage ? 'Popular touring guides' : 'Related guides') + '</p>' +
-        '<h2>' + (homepage ? 'Useful before the van leaves.' : 'Keep planning the tour.') + '</h2></div>' +
-        '<a class="related-guide-all" href="resources.html">View all resources →</a>' +
-      '</div>' +
-      '<div class="related-guide-grid">' + cards + '</div>' +
-    '</div>';
+    section.innerHTML = '<div class="wrap"><div class="related-guide-heading"><div>' +
+      '<p class="eyebrow">' + (homepage ? 'Popular touring guides' : 'Related guides') + '</p>' +
+      '<h2>' + (homepage ? 'Useful before the van leaves.' : 'Keep planning the tour.') + '</h2></div>' +
+      '<a class="related-guide-all" href="resources.html">View all resources →</a></div>' +
+      '<div class="related-guide-grid">' + cards + '</div></div>';
     return section;
   }
 
@@ -144,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const section = createGuideSection(keys, pathname === 'index.html');
     const footer = document.querySelector('footer');
     const finalCta = document.querySelector('.final-cta');
-
     if (pathname === 'index.html' && finalCta) {
       finalCta.parentNode.insertBefore(section, finalCta);
     } else if (footer) {
