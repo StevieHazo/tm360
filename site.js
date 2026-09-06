@@ -1,25 +1,23 @@
 'use strict';
-
 document.addEventListener('DOMContentLoaded', function () {
   const SITE_EMAIL = 'info@tm360.uk';
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbgjadnq';
 
-  /* Standardise every email link and mailto form across the site. */
   document.querySelectorAll('a[href^="mailto:"]').forEach(function (link) {
     const current = link.getAttribute('href') || '';
     const query = current.includes('?') ? current.slice(current.indexOf('?')) : '';
     link.setAttribute('href', 'mailto:' + SITE_EMAIL + query);
-
     const visible = (link.textContent || '').trim();
-    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(visible)) {
-      link.textContent = SITE_EMAIL;
-    }
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(visible)) link.textContent = SITE_EMAIL;
   });
 
   document.querySelectorAll('form[action^="mailto:"]').forEach(function (form) {
-    form.setAttribute('action', 'mailto:' + SITE_EMAIL);
+    form.setAttribute('action', FORMSPREE_ENDPOINT);
+    form.setAttribute('method', 'POST');
+    form.removeAttribute('enctype');
+    form.setAttribute('data-formspree-form', '');
   });
 
-  /* Replace visible legacy TM360 email addresses without changing user-entered form data. */
   const emailPattern = /(?:hello|contact|info|stevie|steve)@(?:tm360\.uk|tm360\.co\.uk|tourmanagement360\.uk|soswifi\.uk)/gi;
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   const textNodes = [];
@@ -30,33 +28,48 @@ document.addEventListener('DOMContentLoaded', function () {
     node.nodeValue = node.nodeValue.replace(emailPattern, SITE_EMAIL);
   });
 
+  document.querySelectorAll('[data-formspree-form]').forEach(function (form) {
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const button = form.querySelector('button[type="submit"]');
+      let status = form.querySelector('[data-form-status]');
+      if (!status) {
+        status = document.createElement('p');
+        status.className = 'form-status';
+        status.setAttribute('data-form-status', '');
+        status.setAttribute('role', 'status');
+        status.setAttribute('aria-live', 'polite');
+        form.appendChild(status);
+      }
+      const originalText = button ? button.textContent : '';
+      if (button) { button.disabled = true; button.textContent = 'Sending…'; }
+      status.textContent = 'Sending your enquiry…';
+      try {
+        const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error('Submission failed');
+        form.reset();
+        status.textContent = 'Thanks. Your enquiry has been sent to TM360°.';
+      } catch (error) {
+        status.textContent = 'Sorry, your enquiry could not be sent. Please email ' + SITE_EMAIL + '.';
+      } finally {
+        if (button) { button.disabled = false; button.textContent = originalText; }
+      }
+    });
+  });
+
   const relatedStyles = document.createElement('link');
   relatedStyles.rel = 'stylesheet';
   relatedStyles.href = 'related-guides.css';
   document.head.appendChild(relatedStyles);
-
   const header = document.querySelector('.header');
   const menu = document.querySelector('.menu');
   const nav = document.querySelector('.links');
-
-  window.addEventListener('scroll', function () {
-    if (header) header.classList.toggle('scrolled', window.scrollY > 30);
-  });
-
+  window.addEventListener('scroll', function () { if (header) header.classList.toggle('scrolled', window.scrollY > 30); });
   if (menu && nav) {
-    menu.addEventListener('click', function () {
-      nav.classList.toggle('open');
-    });
-    nav.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () {
-        nav.classList.remove('open');
-      });
-    });
+    menu.addEventListener('click', function () { nav.classList.toggle('open'); });
+    nav.querySelectorAll('a').forEach(function (link) { link.addEventListener('click', function () { nav.classList.remove('open'); }); });
   }
-
-  document.querySelectorAll('[data-year]').forEach(function (year) {
-    year.textContent = new Date().getFullYear();
-  });
+  document.querySelectorAll('[data-year]').forEach(function (year) { year.textContent = new Date().getFullYear(); });
 
   const guides = {
     independent: ['Tour management for independent bands', 'What professional support looks like when a band has outgrown running everything from the stage.', 'tour-management-independent-bands.html', 'Tour Management'],
@@ -72,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function () {
     weekend: ['Weekend tour management', 'Professional preparation and road support for a compact run of shows.', 'weekend-tour-management.html', 'Packages'],
     album: ['Planning an album-release tour', 'Connect the live run to the release campaign without losing control of delivery.', 'album-release-tour-planning.html', 'Planning']
   };
-
   const pathname = window.location.pathname.split('/').pop() || 'index.html';
   const relatedByPage = {
     'index.html': ['budgeting', 'funding', 'grassroots', 'driver'],
@@ -82,33 +94,22 @@ document.addEventListener('DOMContentLoaded', function () {
     'wellbeing.html': ['wellbeing', 'grassroots', 'weekend', 'headline'],
     'grant-readiness.html': ['funding', 'budgeting', 'album', 'headline']
   };
-
   function createGuideSection(keys, homepage) {
     const section = document.createElement('section');
     section.className = homepage ? 'related-guides related-guides-home' : 'related-guides';
     const cards = keys.map(function (key) {
       const g = guides[key];
-      return '<a class="related-guide-card" href="' + g[2] + '">' +
-        '<span class="related-guide-category">' + g[3] + '</span>' +
-        '<h3>' + g[0] + '</h3><p>' + g[1] + '</p><strong>Read guide →</strong></a>';
+      return '<a class="related-guide-card" href="' + g[2] + '"><span class="related-guide-category">' + g[3] + '</span><h3>' + g[0] + '</h3><p>' + g[1] + '</p><strong>Read guide →</strong></a>';
     }).join('');
-    section.innerHTML = '<div class="wrap"><div class="related-guide-heading"><div>' +
-      '<p class="eyebrow">' + (homepage ? 'Popular touring guides' : 'Related guides') + '</p>' +
-      '<h2>' + (homepage ? 'Useful before the van leaves.' : 'Keep planning the tour.') + '</h2></div>' +
-      '<a class="related-guide-all" href="resources.html">View all resources →</a></div>' +
-      '<div class="related-guide-grid">' + cards + '</div></div>';
+    section.innerHTML = '<div class="wrap"><div class="related-guide-heading"><div><p class="eyebrow">' + (homepage ? 'Popular touring guides' : 'Related guides') + '</p><h2>' + (homepage ? 'Useful before the van leaves.' : 'Keep planning the tour.') + '</h2></div><a class="related-guide-all" href="resources.html">View all resources →</a></div><div class="related-guide-grid">' + cards + '</div></div>';
     return section;
   }
-
   const keys = relatedByPage[pathname];
   if (keys && !document.querySelector('.related-guides')) {
     const section = createGuideSection(keys, pathname === 'index.html');
     const footer = document.querySelector('footer');
     const finalCta = document.querySelector('.final-cta');
-    if (pathname === 'index.html' && finalCta) {
-      finalCta.parentNode.insertBefore(section, finalCta);
-    } else if (footer) {
-      footer.parentNode.insertBefore(section, footer);
-    }
+    if (pathname === 'index.html' && finalCta) finalCta.parentNode.insertBefore(section, finalCta);
+    else if (footer) footer.parentNode.insertBefore(section, footer);
   }
 });

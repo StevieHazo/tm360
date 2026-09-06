@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://tm360.soswifi.uk/sitemap.xml
+Sitemap: https://tm360.uk/sitemap.xml
