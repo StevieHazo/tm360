@@ -1,0 +1,84 @@
+/* TM360° OFFICIAL related-guide system */
+.related-guides {
+  padding: 90px 0;
+  background: #111318;
+  border-top: 1px solid var(--line, #30343d);
+  border-bottom: 1px solid var(--line, #30343d);
+}
+.related-guides-home {
+  background: linear-gradient(145deg, #111318, #171c10);
+}
+.related-guide-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+.related-guide-heading h2 {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: .9;
+  letter-spacing: -.055em;
+  text-transform: uppercase;
+}
+.related-guide-all {
+  color: var(--acid, #dcff31);
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+  padding-bottom: 8px;
+}
+.related-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.related-guide-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 275px;
+  padding: 25px;
+  color: #f7f7f3;
+  text-decoration: none;
+  background: #191c22;
+  border: 1px solid #343842;
+  border-radius: 15px;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+.related-guide-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--acid, #dcff31);
+  background: #1e2219;
+}
+.related-guide-category {
+  color: var(--acid, #dcff31);
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.related-guide-card h3 {
+  margin: 14px 0 10px;
+  font-size: 1.35rem;
+  line-height: 1.08;
+}
+.related-guide-card p {
+  flex: 1;
+  margin: 0 0 20px;
+  color: #b8bbc2;
+}
+.related-guide-card strong {
+  color: var(--acid, #dcff31);
+  font-size: .86rem;
+}
+@media (max-width: 1050px) {
+  .related-guide-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 650px) {
+  .related-guides { padding: 65px 0; }
+  .related-guide-heading { align-items: flex-start; flex-direction: column; }
+  .related-guide-grid { grid-template-columns: 1fr; }
+  .related-guide-card { min-height: 0; }
+}
