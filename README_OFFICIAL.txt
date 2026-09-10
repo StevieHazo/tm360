@@ -1,12 +1,7 @@
 OFFICIAL
 
-TM360° website update package
+TM360° Sustainable Tour Delivery homepage update
 
-Replace the matching files in the repository root with these files, then commit and push to GitHub.
+Upload both index.html and homepage-prominence.css to the repository root, replacing the existing files with the same names.
 
-Changes:
-- Contact form now posts directly to Formspree endpoint xbgjadnq.
-- Added loading, success and failure messaging plus honeypot protection.
-- Standardised TM360 email handling to info@tm360.uk.
-- Updated robots.txt and sitemap.xml to tm360.uk.
-- No Touring Tools, Grant Ready or Resources Hub application files are included or altered.
+The update preserves the existing site-wide style.css, site.js, navigation, logo, Grant Ready, Touring Tools and other pages. It redesigns the homepage only.
