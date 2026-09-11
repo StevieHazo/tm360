@@ -1,0 +1,4 @@
+OFFICIAL
+Place the supplied files here:
+- hero-venue.jpg (required homepage hero)
+- hero-van.jpg (optional fallback; not used by homepage CSS)
