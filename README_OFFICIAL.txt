@@ -1,12 +1,18 @@
 OFFICIAL
 
-TM360° complete corrected contrast package
+TM360° cinematic hero update
 
-Replace these three files in the repository root:
+Replace these three files in the GitHub repository root:
 - index.html
 - style.css
 - homepage-prominence.css
 
-The underlying issue was the homepage stylesheet redefining --ink as almost black. That override has been removed. Explicit accessible colours are now set for the hero, readiness card, assurance strip, dark sections, light lifecycle section, cards, navigation and footer-facing content.
+The update retains the corrected contrast and adds:
+- layered cinematic headline shadows
+- a subtle READY background word
+- a soft lime atmospheric glow
+- a restrained illuminated underline
+- enhanced depth and hover treatment on the Tour Readiness card
+- reduced-motion support
 
-Delete homepage-contrast-fix.css from the repository if it was previously uploaded. It is no longer required.
+No separate contrast-fix stylesheet is required. Delete homepage-contrast-fix.css if it remains in the repository.
