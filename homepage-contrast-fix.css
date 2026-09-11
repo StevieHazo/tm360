@@ -1,0 +1,12 @@
+/* OFFICIAL - Contrast Fix Pack */
+.risk-hero{background:linear-gradient(90deg,rgba(0,0,0,.93) 0%,rgba(0,0,0,.87) 40%,rgba(0,0,0,.65) 65%,rgba(0,0,0,.35) 100%),url('hero-stage.jpg') center/cover!important}
+.risk-hero h1{color:#fff!important;text-shadow:0 3px 12px rgba(0,0,0,.8)!important}
+.risk-hero .lead{color:#e2e2e2!important}
+.nav a,.links a{color:#fff!important}.nav a:hover,.links a:hover{color:#d8ff19!important}
+.readiness h2,.readiness li,.readiness a{color:#fff!important}
+.assurance strong{color:#fff!important}.assurance span{color:#d4d4d4!important}
+.section-head h2,.life-grid h2,.promise h2,.final-cta h2,.risk-grid h3,.scenario-grid h3{color:#fff!important}
+.risk-grid p,.scenario-grid p,.section-head p,.life-grid p{color:#d6d6d6!important}
+.risk-grid article,.scenario-grid article{background:#16191c!important}
+.scenario-grid article div{color:#f1f1f1!important}
+:root{--muted:#d6d6d6!important}
