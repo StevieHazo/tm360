@@ -1,0 +1,5 @@
+﻿{
+  "Description": "Domain ownership verification file for Microsoft 365 - place in the website root",
+  "Domain": "tm360.uk",
+  "Id": "d63113b7-fda6-4ddb-9d62-d9cec43ba803"
+}
