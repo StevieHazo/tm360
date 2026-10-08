@@ -1,5 +1,17 @@
 'use strict';
 document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.links').forEach(function (nav) {
+    if (nav.querySelector('a[href="tour-app.html"]')) return;
+    var a = document.createElement('a'); a.href = 'tour-app.html'; a.className = 'app-link'; a.textContent = '360 Tour App';
+    if (/tour-app\.html$/.test(location.pathname)) a.classList.add('active');
+    var cta = nav.querySelector('.btn'); nav.insertBefore(a, cta || null);
+  });
+  var hero = document.querySelector('body.home .hero, .hero');
+  if (hero && /(^\/$|index\.html$)/.test(location.pathname) && !document.querySelector('.app-banner')) {
+    var b = document.createElement('section'); b.className = 'app-banner';
+    b.innerHTML = '<div class="wrap"><div><span class="eyebrow">New</span><h3>The 360 Tour App</h3><p>Day sheets, advancing, hotels, riders, per diems and nightly settlements — on your phone.</p></div><a class="btn" href="tour-app.html">Open the app</a></div>';
+    hero.insertAdjacentElement('afterend', b);
+  }
   const SITE_EMAIL = 'info@tm360.uk';
   const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbgjadnq';
 
