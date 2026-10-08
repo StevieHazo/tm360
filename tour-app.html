@@ -52,7 +52,7 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th{text-align:left;co
 <div class="kpis"><div><strong id="kShows">0</strong><span>Shows</span></div><div><strong id="kAdv">0%</strong><span>Advanced</span></div><div><strong id="kNet">£0</strong><span>Net to artist</span></div><div><strong id="kNext">—</strong><span>Next show</span></div></div></section>
 
 <nav class="tabs" id="tabs">
-<button class="tab on" data-v="shows">Tour &amp; Shows</button><button class="tab" data-v="day">Day Sheet</button><button class="tab" data-v="adv">Advancing</button><button class="tab" data-v="travel">Travel &amp; Hotels</button><button class="tab" data-v="rider">Riders &amp; Per Diems</button><button class="tab" data-v="settle">Settlement</button><button class="tab" data-v="backup">Backup</button>
+<button class="tab on" data-v="shows">Tour &amp; Shows</button><button class="tab" data-v="day">Day Sheet</button><button class="tab" data-v="adv">Advancing</button><button class="tab" data-v="travel">Travel &amp; Hotels</button><button class="tab" data-v="rider">Riders &amp; Per Diems</button><button class="tab" data-v="budget">Tour Budget</button><button class="tab" data-v="settle">Settlement</button><button class="tab" data-v="backup">Backup</button>
 </nav>
 <div class="panel" id="showBar" style="margin-top:14px;display:none"><div class="row between"><label style="flex:1;min-width:220px">Working on show<select id="showPick"></select></label><button class="btn ghost" id="printDay" style="display:none">Print crew day sheet</button><button class="btn ghost" id="printSettle" style="display:none">Print settlement sheet</button></div></div>
 
@@ -112,6 +112,32 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th{text-align:left;co
 </section>
 
 <!-- SETTLEMENT -->
+<section class="view" id="v-budget">
+<div class="panel"><h3>Whole-tour budget</h3><p class="muted">Rough out the whole tour before deals are signed. Change any number and the totals update. Blank boxes count as £0.</p>
+<div class="grid">
+<label>People on the road<input type="number" data-b="people" placeholder="auto from touring party"></label>
+<label>Touring days<input type="number" data-b="days" placeholder="auto from show dates"></label>
+<label>Hotel nights<input type="number" data-b="nights" placeholder="auto: days − 1"></label>
+<label>Rooms per night<input type="number" data-b="rooms" placeholder="auto: people ÷ 2"></label>
+<label>£ per room per night<input type="number" data-b="roomRate" placeholder="e.g. 75"></label>
+<label>Per diem £/person/day<input type="number" data-b="perDiem" placeholder="from Riders tab"></label>
+<label>Van hire £/day<input type="number" data-b="van" placeholder="e.g. 110"></label>
+<label>Total miles<input type="number" data-b="miles" placeholder="e.g. 1800"></label>
+<label>Fuel pence per mile<input type="number" data-b="ppm" placeholder="e.g. 25"></label>
+<label>Crew wages £/day (total)<input type="number" data-b="crewDay"></label>
+<label>Support acts £/show (total)<input type="number" data-b="supportShow"></label>
+<label>Backline / equipment hire £<input type="number" data-b="backline"></label>
+<label>Marketing &amp; posters £<input type="number" data-b="marketing"></label>
+<label>Insurance £<input type="number" data-b="insurance"></label>
+<label>Other costs £<input type="number" data-b="other"></label>
+<label>Contingency %<input type="number" data-b="contPct" placeholder="10"></label>
+<label>PRS % on tickets<input type="number" step="0.1" data-b="prs" placeholder="4.2"></label>
+<label>Merch profit £/show<input type="number" data-b="merch"></label>
+</div></div>
+<div class="panel"><h3>Show income</h3><p class="muted">For each show: capacity and ticket price, any guarantee, your share of ticket money after PRS, and any hall hire you pay.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Show</th><th>Capacity</th><th>Ticket £</th><th>Guarantee £</th><th>Your share %</th><th>Hall hire £</th></tr></thead><tbody id="budShows"></tbody></table></div></div>
+<div class="panel"><label>Expected sell-through %<input type="range" min="0" max="100" step="5" data-b="sell" id="budSell"></label><div class="sum" id="budSum"></div></div>
+</section>
 <section class="view" id="v-settle">
 <div class="grid" style="align-items:start">
 <div class="panel"><h3>Deal</h3><div class="grid">
@@ -165,10 +191,10 @@ $('#tourPick').innerHTML=db.tours.map(x=>`<option value="${x.id}"${x.id===t.id?'
 function bindFields(){const t=T(),s=S();$$('[data-t]').forEach(el=>{el.value=t[el.dataset.t]??''});$$('[data-s]').forEach(el=>{el.value=s?(s[el.dataset.s]??(el.tagName==='SELECT'?el.options[0].value:'')):'';el.disabled=!s})}
 document.addEventListener('input',e=>{const el=e.target;if(el.dataset.t!==undefined){T()[el.dataset.t]=el.value;save();if(['perDiem'].includes(el.dataset.t))renderRider()}else if(el.dataset.s!==undefined&&S()){S()[el.dataset.s]=el.value;save();refreshDerived()}});
 
-function render(){kpis();bindFields();renderShowBar();renderParty();renderShows();renderSlots();renderAdv();renderTravel();renderRider();renderSettle()}
+function render(){kpis();bindFields();renderShowBar();renderParty();renderShows();renderSlots();renderAdv();renderTravel();renderRider();renderSettle();renderBudget()}
 function refreshDerived(){renderShowBar(true);renderShows();curfew();advDue();mapLink();renderRider(true);renderSettle()}
 
-function renderShowBar(keep){const t=T(),bar=$('#showBar');bar.style.display=(tab==='shows'||tab==='backup')?'none':'block';$('#printDay').style.display=tab==='day'?'':'none';$('#printSettle').style.display=tab==='settle'?'':'none';
+function renderShowBar(keep){const t=T(),bar=$('#showBar');bar.style.display=(tab==='shows'||tab==='backup'||tab==='budget')?'none':'block';$('#printDay').style.display=tab==='day'?'':'none';$('#printSettle').style.display=tab==='settle'?'':'none';
 const s=S();$('#showPick').innerHTML=t.shows.length?sorted(t).map(x=>`<option value="${x.id}"${s&&x.id===s.id?' selected':''}>${esc(fmtD(x.date)+' — '+(x.venue||'Venue tbc')+(x.city?', '+x.city:''))}</option>`).join(''):'<option>Add a show on the Tour &amp; Shows tab first</option>'}
 $('#showPick').onchange=e=>{T().cur=e.target.value;save();render()};
 
@@ -213,6 +239,26 @@ $('#pd').addEventListener('change',e=>{const el=e.target,id=el.dataset.pd;if(!id
 function renderSettle(){const s=S(),el=$('#settleSum');if(!s){el.innerHTML='<p class="muted">Add a show first.</p>';return}const r=settle(s);
 el.innerHTML=`<div><span>Gross takings (tickets + door)</span><b>${gbp(r.g)}</b></div><div><span>PRS (${num(s.prs)}%)</span><span>− ${gbp(r.prs)}</span></div><div><span>Hall hire, engineer, security &amp; other</span><span>− ${gbp(r.ded-r.prs)}</span></div><div><span>Net box office</span><b>${gbp(r.net)}</b></div><div><span>Promoter / venue keeps</span><span>${gbp(r.promoter)}</span></div><div class="tot"><span>Due to artist (show)</span><span>${gbp(r.artist)}</span></div><div><span>Merch sales ${gbp(s.merch)} less ${num(s.merchPct)}% venue commission</span><span>${gbp(r.merchNet)} (venue ${gbp(r.mc)})</span></div>`}
 
+
+function B(){const t=T();return t.budget||(t.budget={sell:60,contPct:10,prs:4.2,shows:{}})}
+function budCalc(sell){const t=T(),b=B(),shows=sorted(t).filter(x=>!/day off/i.test(x.venue||''));const dates=sorted(t).map(x=>x.date).filter(Boolean);
+const people=num(b.people)||t.party.length||0,days=num(b.days)||new Set(dates).size,nights=b.nights!==undefined&&b.nights!==''?num(b.nights):Math.max(0,days-1),rooms=num(b.rooms)||Math.ceil(people/2),pd=b.perDiem!==undefined&&b.perDiem!==''?num(b.perDiem):num(t.perDiem);
+const c={Hotels:nights*rooms*num(b.roomRate),'Per diems':people*days*pd,'Van hire':days*num(b.van),Fuel:num(b.miles)*num(b.ppm)/100,'Crew wages':days*num(b.crewDay),'Support acts':shows.length*num(b.supportShow),Backline:num(b.backline),Marketing:num(b.marketing),Insurance:num(b.insurance),Other:num(b.other)};
+let base=Object.values(c).reduce((a,v)=>a+v,0);c.Contingency=base*num(b.contPct)/100;
+let hire=0,inc=0,fixed=0,perPct=0;shows.forEach(x=>{const r=b.shows[x.id]||{};const share=(r.share===undefined||r.share==='')?100:num(r.share);const pot=num(r.cap)*num(r.price)*(1-num(b.prs)/100)*share/100;hire+=num(r.hire);fixed+=num(r.guar);perPct+=pot;});
+c['Hall hire']=hire;const cost=Object.values(c).reduce((a,v)=>a+v,0);const merch=shows.length*num(b.merch);inc=fixed+merch+perPct*sell/100;
+const be=perPct>0?Math.max(0,(cost-fixed-merch)/perPct*100):null;return{c,cost,inc,net:inc-cost,be,people,days,nights,rooms,shows,perPct,fixed,merch}}
+function renderBudget(){const t=T(),b=B();$$('[data-b]').forEach(el=>{el.value=b[el.dataset.b]??''});
+$('#budShows').innerHTML=sorted(t).filter(x=>!/day off/i.test(x.venue||'')).map(x=>{const r=b.shows[x.id]||{};const f=k=>`<td><input type="number" data-bs="${x.id}" data-k="${k}" value="${esc(r[k]??'')}"${k==='share'?' placeholder="100"':''}></td>`;return`<tr><td><b>${esc(fmtD(x.date))}</b><br><span class="muted">${esc(x.venue||'')}</span></td>${f('cap')}${f('price')}${f('guar')}${f('share')}${f('hire')}</tr>`}).join('')||'<tr><td colspan="6" class="muted">Add shows first.</td></tr>';budSum()}
+function budSum(){const b=B(),sell=num(b.sell),r=budCalc(sell);const row=(k,v)=>`<div class="row" style="justify-content:space-between"><span>${k}</span><b>${gbp(v)}</b></div>`;
+const sc=[25,50,75,100].map(p=>{const x=budCalc(p);return`<td style="color:${x.net>=0?'var(--acid)':'#ff8a8a'}"><b>${gbp(x.net)}</b></td>`}).join('');
+$('#budSum').innerHTML=`<p><b>At ${sell}% sold:</b> income ${gbp(r.inc)} − costs ${gbp(r.cost)} = <b style="font-size:1.4rem;color:${r.net>=0?'var(--acid)':'#ff8a8a'}">${r.net>=0?'profit ':'loss '}${gbp(Math.abs(r.net))}</b></p>
+<p>${r.be===null?'Add capacities and ticket prices to see break-even.':r.be>100?'<b style="color:#ff8a8a">Even a sell-out does not cover costs ('+Math.round(r.be)+'% needed).</b>':'<b>Break-even: '+Math.ceil(r.be)+'% of tickets sold across the tour.</b>'}</p>
+<p class="muted">${r.people} people · ${r.days} days · ${r.nights} nights · ${r.rooms} rooms/night · ${r.shows.length} shows</p>
+<table><thead><tr><th>25% sold</th><th>50%</th><th>75%</th><th>Sell-out</th></tr></thead><tbody><tr>${sc}</tr></tbody></table>
+<h4>Costs</h4>${Object.entries(r.c).filter(e=>e[1]).map(e=>row(e[0],e[1])).join('')||'<p class="muted">No costs entered yet.</p>'}${row('Total costs',r.cost)}
+<h4>Income</h4>${row('Guarantees',r.fixed)}${row('Ticket share at '+sell+'%',r.perPct*sell/100)}${row('Merch profit',r.merch)}`}
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset.b!==undefined){B()[el.dataset.b]=el.value;save();budSum()}else if(el.dataset.bs!==undefined){const b=B();(b.shows[el.dataset.bs]||(b.shows[el.dataset.bs]={}))[el.dataset.k]=el.value;save();budSum()}});
 function go(v){tab=v;$$('.tab').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));render();scrollTo({top:0,behavior:'smooth'})}
 $('#tabs').onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
 $('#tourPick').onchange=e=>{db.cur=e.target.value;save();render()};
