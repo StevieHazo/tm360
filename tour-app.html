@@ -63,6 +63,11 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th{text-align:left;co
 <div class="panel"><div class="row between"><h3>Touring party</h3><button class="btn ghost" id="addPerson">+ Person</button></div>
 <table><thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Dietary / allergies</th><th></th></tr></thead><tbody id="party"></tbody></table></div>
 <div class="panel"><div class="row between"><h3>Show dates</h3><button class="btn" id="addShow">+ Add show</button></div><div class="showlist" id="showList"></div><p class="note">Tip: for ticketing, set each date up on GRITS Gigs too — fans pay no booking fees.</p></div>
+<div class="panel" id="gritsPanel"><div class="row between"><h3>Live from GRITS Gigs</h3><span class="muted" id="gritsWho"></span></div>
+<div id="gritsLogin"><p class="note">Sign in with the GRITS seller account that sells this tour's tickets. Dates, ticket sales, merch pre-orders and door check-ins will flow in here and onto each show's settlement.</p>
+<div class="row"><input id="gEmail" type="email" placeholder="GRITS email" autocomplete="username"> <input id="gPass" type="password" placeholder="Password" autocomplete="current-password"> <button class="btn" id="gLogin">Connect GRITS</button></div></div>
+<div id="gritsOn" style="display:none"><div class="row"><button class="btn" id="gSync">Refresh from GRITS</button> <button class="btn" id="gOut">Disconnect</button> <span class="muted" id="gWhen"></span></div><div id="gritsList"></div></div>
+<p class="muted" id="gMsg"></p></div>
 </section>
 
 <!-- DAY SHEET -->
@@ -228,4 +233,30 @@ $('#print').innerHTML=`<p>TM360° SETTLEMENT SHEET</p><h1>${esc(t.artist)} — $
 <table><tr><td>Ticket income</td><td>${gbp(s.gross)}</td></tr><tr><td>Door sales</td><td>${gbp(s.door)}</td></tr><tr><td><b>Gross</b></td><td><b>${gbp(r.g)}</b></td></tr><tr><td>Hall hire</td><td>− ${gbp(s.hall)}</td></tr><tr><td>PRS (${num(s.prs)}%)</td><td>− ${gbp(r.prs)}</td></tr><tr><td>Local sound engineer</td><td>− ${gbp(s.engineer)}</td></tr><tr><td>Security / staff</td><td>− ${gbp(s.security)}</td></tr><tr><td>Other costs</td><td>− ${gbp(s.otherCost)}</td></tr><tr><td><b>Net box office</b></td><td><b>${gbp(r.net)}</b></td></tr><tr><td>Deal</td><td>${esc({split:'Door split '+num(s.pct)+'% to artist',guarantee:'Guarantee '+gbp(s.guarantee),vs:gbp(s.guarantee)+' vs '+num(s.pct)+'%'}[s.deal||'split'])}</td></tr><tr><td><b>DUE TO ARTIST</b></td><td><b>${gbp(r.artist)}</b></td></tr><tr><td>Promoter / venue retains</td><td>${gbp(r.promoter)}</td></tr><tr><td>Merch sales / venue commission ${num(s.merchPct)}%</td><td>${gbp(s.merch)} / ${gbp(r.mc)}</td></tr></table><p>${esc(s.settleNotes||'')}</p>
 <div class="sig"><div>For the artist (print &amp; sign)</div><div>For the promoter / venue (print &amp; sign)</div></div>`;print()};
 render();
+
+/* ---- GRITS Gigs live link ---- */
+const GAPI='https://gigs.grits.rocks/api/tour-feed',GKEY='tm360-grits-session';
+let gFeed=[];
+const gS=()=>{try{return JSON.parse(localStorage.getItem(GKEY))}catch(e){return null}};
+const gMsg=t=>{$('#gMsg').textContent=t||''};
+async function gToken(){let g=gS();if(!g)return null;if(g.expires_at*1000<Date.now()+60000){const r=await fetch(GAPI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'refresh',refresh_token:g.refresh_token})});if(!r.ok){localStorage.removeItem(GKEY);gUI();return null}g=await r.json();localStorage.setItem(GKEY,JSON.stringify(g))}return g.access_token}
+function gUI(){const g=gS();$('#gritsLogin').style.display=g?'none':'';$('#gritsOn').style.display=g?'':'none';$('#gritsWho').textContent=g?'Connected as '+g.email:'';if(g)gRender()}
+const norm=x=>String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function gMatch(e){const t=T();return t.shows.find(s=>s.gritsId===e.id)||t.shows.find(s=>!s.gritsId&&s.date===e.date&&(!s.venue||!e.venue||norm(s.venue).includes(norm(e.venue).slice(0,6))||norm(e.venue).includes(norm(s.venue).slice(0,6))))}
+function gApply(s,e){s.gritsId=e.id;s.grits=e;for(const[k,v]of[['date',e.date],['venue',e.venue],['city',e.city],['address',e.address]])if(!s[k]&&v)s[k]=v;
+ if(e.capacity)s.cap=e.capacity;s.sold=e.tickets;s.comps=e.comps||s.comps;if(e.gross_pence!=null)s.gross=(e.gross_pence/100).toFixed(2);if(e.merch&&e.merch.pence!=null&&e.merch.pence)s.merch=(e.merch.pence/100).toFixed(2);
+ if(e.curfew&&!s.curfew)s.curfew=String(e.curfew).slice(0,5);
+ const add=(time,what)=>{if(time&&!s.slots.some(x=>new RegExp(what.split(' ')[0],'i').test(x.what)))s.slots.push({id:uid(),time:String(time).slice(0,5),what,notes:'From GRITS'})};add(e.doors,'Doors');add(e.start,'Show start')}
+function gRender(){const t=T();$('#gWhen').textContent=t.gritsAt?'Updated '+new Date(t.gritsAt).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}):'';
+ if(!gFeed.length){$('#gritsList').innerHTML='<p class="muted">'+(t.gritsAt?'No GRITS events on this account.':'Press Refresh to load your GRITS shows.')+'</p>';return}
+ $('#gritsList').innerHTML='<table><tr><th>Date</th><th>GRITS event</th><th>Sold</th><th>In</th><th>Merch</th><th></th></tr>'+gFeed.map(e=>{const m=gMatch(e);return`<tr><td>${esc(fmtD(e.date))}</td><td><b>${esc(e.venue||e.title)}</b> <span class="muted">${esc(e.city||'')}</span></td><td>${e.tickets}${e.capacity?' / '+e.capacity:''}</td><td>${e.checked_in}</td><td>${e.merch.orders}</td><td>${m?'<span class="pill s-ok">On tour</span>':`<button class="btn" data-gadd="${e.id}">+ Add to tour</button>`}</td></tr>`}).join('')+'</table>'}
+async function gSync(){gMsg('Loading from GRITS…');try{const tok=await gToken();if(!tok){gMsg('Please connect GRITS again.');return}const r=await fetch(GAPI,{headers:{Authorization:'Bearer '+tok}});const d=await r.json();if(!r.ok){if(r.status===401){localStorage.removeItem(GKEY);gUI()}gMsg(d.error||'Could not load from GRITS');return}
+ gFeed=d.events||[];const t=T();let n=0;gFeed.forEach(e=>{const s=gMatch(e);if(s){gApply(s,e);n++}});t.gritsAt=d.refreshed_at;save();render();gMsg(n?`${n} show(s) updated with live GRITS figures.`:'Loaded. Add any GRITS events below to this tour.')}catch(e){gMsg('Could not reach GRITS. Check your connection.')}}
+$('#gLogin').onclick=async()=>{gMsg('Signing in…');try{const r=await fetch(GAPI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('#gEmail').value,password:$('#gPass').value})});const d=await r.json();if(!r.ok){gMsg(d.error||'Sign-in failed');return}localStorage.setItem(GKEY,JSON.stringify(d));$('#gPass').value='';gUI();gSync()}catch(e){gMsg('Could not reach GRITS.')}};
+$('#gOut').onclick=()=>{localStorage.removeItem(GKEY);gFeed=[];gMsg('');gUI()};
+$('#gSync').onclick=gSync;
+$('#gritsList').addEventListener('click',e=>{const id=e.target.dataset.gadd;if(!id)return;const ev=gFeed.find(x=>x.id===id);const s=blankShow();gApply(s,ev);T().shows.push(s);save();render()});
+const _renderSettle=renderSettle;renderSettle=function(){_renderSettle();const s=S();if(!s||!s.grits)return;const e=s.grits,gb=p=>p==null?'—':gbp(p/100);
+ $('#settleSum').insertAdjacentHTML('afterbegin',`<div class="tot"><span>Live from GRITS (${esc(new Date(T().gritsAt||Date.now()).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}))})</span><span></span></div><div><span>Tickets sold ${e.capacity?'of '+e.capacity:''} · comps ${e.comps||0}</span><b>${e.tickets}</b></div><div><span>Scanned in at the door</span><span>${e.checked_in}</span></div><div><span>Online ticket takings (fans paid no booking fee)</span><span>${gb(e.gross_pence)}</span></div>${(e.tiers||[]).map(x=>`<div><span>· ${esc(x.name)} @ ${gbp(x.price)}</span><span>${x.sold}${x.quantity?' / '+x.quantity:''}</span></div>`).join('')}<div><span>Merch pre-orders (${e.merch.orders}: ${e.merch.collect||0} collect, ${e.merch.post||0} post)</span><span>${gb(e.merch.pence)}</span></div>${Object.entries(e.merch.items||{}).map(([k,v])=>`<div><span>· ${esc(k)}</span><span>×${v}</span></div>`).join('')}<hr>`)};
+gUI();if(gS())gSync();
 </script></body></html>
