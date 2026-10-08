@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>360 Tour Management App | TM360°</title>
+<meta name="description" content="TM360° 360 Tour App: day sheets, show advancing, travel, riders, per diems and nightly settlements in one place.">
+<meta name="theme-color" content="#08090b"><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08090b;--panel:#111318;--soft:#191c22;--ink:#f7f7f2;--muted:#a9adb5;--acid:#dcff31;--red:#ff5147;--line:#30343d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Archivo,Arial,sans-serif;line-height:1.5}
+a{color:inherit}h1,h2,h3{font-family:'Space Grotesk',Archivo,sans-serif;letter-spacing:-.02em;margin:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 4%;border-bottom:1px solid var(--line);position:sticky;top:0;background:#08090bf2;z-index:20}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:900;font-size:1.2rem}.brand img{height:38px}.brand b{color:var(--acid)}
+.top select,.top button{font:inherit}
+.wrap{width:min(94%,1240px);margin:auto}
+.hero{padding:28px 0 14px;display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between}
+.eyebrow{color:var(--acid);font-size:.72rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;margin:0 0 6px}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);text-transform:uppercase;line-height:.95}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}.kpis div{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:110px}.kpis strong{display:block;font-size:1.3rem}.kpis span{font-size:.75rem;color:var(--muted)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0;border-bottom:1px solid var(--line)}
+.tab{background:none;border:1px solid var(--line);color:var(--ink);padding:9px 14px;border-radius:99px;font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;white-space:nowrap}
+.tab.on{background:var(--acid);color:#08090b;border-color:var(--acid)}
+.view{display:none;padding:22px 0 60px}.view.on{display:block}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+.panel h3{font-size:1.05rem;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.75rem;color:var(--muted);font-weight:600}
+input,select,textarea{background:var(--soft);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:9px 10px;font:inherit;font-size:.92rem;width:100%}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acid);outline-offset:0}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:99px;padding:10px 16px;background:var(--acid);color:#08090b;font-weight:900;cursor:pointer;font:inherit;font-weight:900;font-size:.85rem}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid #555}.btn.danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.between{justify-content:space-between}
+table{width:100%;border-collapse:collapse;font-size:.88rem}th{text-align:left;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;padding:6px}td{padding:4px 6px;border-top:1px solid var(--line);vertical-align:middle}td input,td select{padding:6px 8px}
+.x{background:none;border:0;color:var(--red);cursor:pointer;font-size:1.1rem}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.72rem;font-weight:800}
+.s-todo{background:#ff514733;color:#ff8a82}.s-wait{background:#ffb02033;color:#ffc966}.s-ok{background:#dcff3133;color:var(--acid)}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px}.checks label{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:.88rem}.checks input{width:auto}
+.big{font-size:2rem;font-weight:900;font-family:'Space Grotesk'}.muted{color:var(--muted);font-size:.85rem}
+.sum div{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line)}.sum div:first-child{border-top:0}.sum .tot{font-weight:900;color:var(--acid);font-size:1.1rem}
+.showlist{display:grid;gap:8px}.showcard{display:grid;grid-template-columns:90px 1fr auto;gap:12px;align-items:center;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer}.showcard.on{border-color:var(--acid)}.showcard .d{font-weight:900;font-family:'Space Grotesk'}
+.note{font-size:.8rem;color:var(--muted);margin-top:8px}
+#print{display:none}
+@media print{body{background:#fff;color:#000}body>*:not(#print){display:none!important}#print{display:block!important;font-family:Arial,sans-serif;padding:10mm}#print h1{font-size:22pt}#print table{width:100%;border-collapse:collapse}#print td,#print th{border:1px solid #999;padding:5px 7px;color:#000;font-size:10pt}#print .sig{margin-top:30px;display:flex;gap:40px}#print .sig div{flex:1;border-top:1px solid #000;padding-top:4px}}
+@media(max-width:640px){.showcard{grid-template-columns:70px 1fr}.showcard .row{grid-column:1/-1}}
+</style></head><body>
+<header class="top"><a class="brand" href="index.html"><img src="TM360_OFFICIAL_logo.png" alt=""><span>TM360<b>°</b> Tour App</span></a>
+<div class="row"><select id="tourPick" aria-label="Choose tour"></select><button class="btn ghost" id="newTour">+ Tour</button></div></header>
+
+<div class="wrap">
+<section class="hero"><div><p class="eyebrow">360 Tour Management</p><h1 id="tourTitle">Untitled tour</h1><p class="muted" id="tourSub"></p></div>
+<div class="kpis"><div><strong id="kShows">0</strong><span>Shows</span></div><div><strong id="kAdv">0%</strong><span>Advanced</span></div><div><strong id="kNet">£0</strong><span>Net to artist</span></div><div><strong id="kNext">—</strong><span>Next show</span></div></div></section>
+
+<nav class="tabs" id="tabs">
+<button class="tab on" data-v="shows">Tour &amp; Shows</button><button class="tab" data-v="day">Day Sheet</button><button class="tab" data-v="adv">Advancing</button><button class="tab" data-v="travel">Travel &amp; Hotels</button><button class="tab" data-v="rider">Riders &amp; Per Diems</button><button class="tab" data-v="settle">Settlement</button><button class="tab" data-v="backup">Backup</button>
+</nav>
+<div class="panel" id="showBar" style="margin-top:14px;display:none"><div class="row between"><label style="flex:1;min-width:220px">Working on show<select id="showPick"></select></label><button class="btn ghost" id="printDay" style="display:none">Print crew day sheet</button><button class="btn ghost" id="printSettle" style="display:none">Print settlement sheet</button></div></div>
+
+<!-- SHOWS -->
+<section class="view on" id="v-shows">
+<div class="panel"><h3>Tour details</h3><div class="grid">
+<label>Artist / band<input data-t="artist"></label><label>Tour name<input data-t="name"></label><label>Tour manager<input data-t="tm"></label><label>TM phone<input data-t="tmPhone"></label><label>Default per diem (£/person/day)<input type="number" step="0.5" data-t="perDiem"></label></div></div>
+<div class="panel"><div class="row between"><h3>Touring party</h3><button class="btn ghost" id="addPerson">+ Person</button></div>
+<table><thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Dietary / allergies</th><th></th></tr></thead><tbody id="party"></tbody></table></div>
+<div class="panel"><div class="row between"><h3>Show dates</h3><button class="btn" id="addShow">+ Add show</button></div><div class="showlist" id="showList"></div><p class="note">Tip: for ticketing, set each date up on GRITS Gigs too — fans pay no booking fees.</p></div>
+</section>
+
+<!-- DAY SHEET -->
+<section class="view" id="v-day">
+<div class="panel"><h3>Show basics</h3><div class="grid">
+<label>Date<input type="date" data-s="date"></label><label>City<input data-s="city"></label><label>Venue<input data-s="venue"></label><label>Venue address<input data-s="address"></label><label>Capacity<input type="number" data-s="cap"></label><label>Local promoter<input data-s="promoter"></label></div></div>
+<div class="panel"><div class="row between"><h3>Running order</h3><div class="row"><button class="btn ghost" id="tplDay">Use standard template</button><button class="btn ghost" id="addSlot">+ Slot</button></div></div>
+<table><thead><tr><th style="width:110px">Time</th><th>What</th><th>Notes</th><th></th></tr></thead><tbody id="slots"></tbody></table>
+<div class="grid" style="margin-top:12px"><label>Strict venue curfew<input type="time" data-s="curfew"></label><label>Day notes for band &amp; crew<textarea data-s="dayNotes"></textarea></label></div>
+<p class="note" id="curfewWarn"></p></div>
+</section>
+
+<!-- ADVANCING -->
+<section class="view" id="v-adv">
+<div class="panel"><div class="row between"><h3>Advance status</h3><span id="advDue" class="muted"></span></div><div class="grid">
+<label>Status<select data-s="advStatus"><option value="todo">To advance</option><option value="wait">Awaiting reply</option><option value="ok">Confirmed</option></select></label>
+<label>Production manager<input data-s="pmName"></label><label>PM email<input type="email" data-s="pmEmail"></label><label>PM phone<input data-s="pmPhone"></label><label>House sound engineer<input data-s="foh"></label><label>Load-in access / door<input data-s="loadIn"></label></div>
+<div class="row" style="margin-top:12px"><button class="btn ghost" id="mailPM">Email advance request</button></div></div>
+<div class="panel"><h3>Checklist</h3><div class="checks" id="advChecks"></div></div>
+<div class="panel"><h3>Tech &amp; backstage notes</h3><div class="grid">
+<label>PA / FOH desk<textarea data-s="pa"></textarea></label><label>Lighting<textarea data-s="lights"></textarea></label><label>Stage size / backline<textarea data-s="stage"></textarea></label><label>Parking &amp; permits<textarea data-s="parking"></textarea></label><label>Dressing room, Wi-Fi &amp; codes<textarea data-s="dressing"></textarea></label></div></div>
+</section>
+
+<!-- TRAVEL -->
+<section class="view" id="v-travel">
+<div class="panel"><h3>Travel to this show</h3><div class="grid">
+<label>Leave from<input data-s="travFrom"></label><label>Departure time<input type="time" data-s="depart"></label><label>Drive time (hrs)<input type="number" step="0.25" data-s="drive"></label><label>Miles<input type="number" data-s="miles"></label><label>Ferry / tunnel / route notes<textarea data-s="route"></textarea></label></div>
+<div class="row" style="margin-top:10px"><a class="btn ghost" id="mapLink" target="_blank" rel="noopener">Open route in Google Maps</a></div></div>
+<div class="panel"><h3>Hotel</h3><div class="grid"><label>Hotel<input data-s="hotel"></label><label>Address<input data-s="hotelAddr"></label><label>Booking ref<input data-s="hotelRef"></label><label>Check-in<input type="time" data-s="checkIn"></label><label>Status<select data-s="hotelStatus"><option value="">Not booked</option><option value="held">Held</option><option value="confirmed">Confirmed</option></select></label></div>
+<h3 style="margin-top:16px">Rooming list</h3><table><thead><tr><th>Room</th><th>Type</th><th>Guests</th><th></th></tr></thead><tbody id="rooms"></tbody></table><button class="btn ghost" id="addRoom" style="margin-top:8px">+ Room</button></div>
+<div class="panel"><h3>Van hire (whole tour)</h3><div class="grid"><label>Hire company<input data-t="vanCo"></label><label>Registration<input data-t="vanReg"></label><label>Pick-up<input type="datetime-local" data-t="vanPick"></label><label>Return<input type="datetime-local" data-t="vanReturn"></label><label>Hire cost £<input type="number" data-t="vanCost"></label></div></div>
+<div class="panel"><div class="row between"><h3>Fuel log (whole tour)</h3><button class="btn ghost" id="addFuel">+ Fill-up</button></div>
+<table><thead><tr><th>Date</th><th>Where</th><th>Litres</th><th>£</th><th>Mileage</th><th></th></tr></thead><tbody id="fuel"></tbody></table><p class="muted" id="fuelTot"></p></div>
+</section>
+
+<!-- RIDER -->
+<section class="view" id="v-rider">
+<div class="panel"><h3>Hospitality for this show</h3><div class="grid">
+<label>Rider<select data-s="riderType"><option value="supplied">Venue supplies rider</option><option value="buyout">Cash buyout</option><option value="none">None</option></select></label><label>Buyout amount £<input type="number" data-s="buyout"></label><label>Hot meal?<select data-s="meal"><option value="">Not agreed</option><option>Yes – venue catering</option><option>Yes – meal buyout</option><option>No</option></select></label><label>Rider notes<textarea data-s="riderNotes"></textarea></label></div>
+<p class="note" id="dietSum"></p></div>
+<div class="panel"><h3>Per diems for this show</h3><table><thead><tr><th>Person</th><th>£</th><th>Paid</th></tr></thead><tbody id="pd"></tbody></table><p class="muted" id="pdTot"></p></div>
+</section>
+
+<!-- SETTLEMENT -->
+<section class="view" id="v-settle">
+<div class="grid" style="align-items:start">
+<div class="panel"><h3>Deal</h3><div class="grid">
+<label>Deal type<select data-s="deal"><option value="split">Door split after costs</option><option value="guarantee">Guarantee only</option><option value="vs">Guarantee vs % (whichever higher)</option></select></label>
+<label>Guarantee £<input type="number" data-s="guarantee"></label><label>Artist % of net<input type="number" data-s="pct" placeholder="e.g. 70"></label></div></div>
+<div class="panel"><h3>Takings</h3><div class="grid">
+<label>Tickets sold<input type="number" data-s="sold"></label><label>Comps<input type="number" data-s="comps"></label><label>Ticket income £<input type="number" data-s="gross"></label><label>Door sales £<input type="number" data-s="door"></label><label>Merch sales £<input type="number" data-s="merch"></label></div></div>
+<div class="panel"><h3>Deductions</h3><div class="grid">
+<label>Hall hire £<input type="number" data-s="hall"></label><label>PRS %<input type="number" step="0.1" data-s="prs" placeholder="4.2"></label><label>Local sound engineer £<input type="number" data-s="engineer"></label><label>Security / staff £<input type="number" data-s="security"></label><label>Other costs £<input type="number" data-s="otherCost"></label><label>Merch commission %<input type="number" data-s="merchPct"></label></div></div>
+</div>
+<div class="panel sum" id="settleSum"></div>
+<label>Settlement notes<textarea data-s="settleNotes"></textarea></label>
+</section>
+
+<!-- BACKUP -->
+<section class="view" id="v-backup"><div class="panel"><h3>Your tour data</h3>
+<p class="muted">Everything saves automatically on this device. Download a backup to move it to another phone or laptop, or to send to the band.</p>
+<div class="row"><button class="btn" id="exp">Download backup</button><label class="btn ghost" style="flex-direction:row;color:var(--ink);font-size:.85rem">Load backup<input type="file" id="imp" accept=".json" hidden></label><button class="btn danger" id="delTour">Delete this tour</button></div></div>
+<div class="panel"><h3>Add to your phone</h3><p class="muted">iPhone: tap Share → Add to Home Screen. Android: tap ⋮ → Install app / Add to Home screen. It then opens like an app.</p></div></section>
+</div>
+<div id="print"></div>
+
+<script>
+'use strict';
+const KEY='tm360-tour-app-v1';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>parseFloat(v)||0, gbp=v=>'£'+num(v).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const uid=()=>Math.random().toString(36).slice(2,9);
+const ADV=['Contract & deal confirmed','Tech spec / stage plot sent','PA & lighting confirmed','Backline agreed','Load-in time & access confirmed','Parking / permit sorted','Dressing room & Wi-Fi','Guest list allocation','Merch space & commission agreed','Curfew confirmed','Hospitality / rider agreed','Settlement contact & method'];
+const TPL=[['14:00','Load-in'],['16:00','Soundcheck – headline'],['17:00','Soundcheck – support'],['18:00','Dinner'],['19:00','Doors'],['19:45','Support'],['21:00','Headline stage time'],['22:30','Show ends'],['23:00','Load-out']];
+let db=load(), tab='shows';
+function blankShow(){return{id:uid(),date:'',city:'',venue:'',slots:[],advChecks:{},rooms:[],pd:{},advStatus:'todo'}}
+function blankTour(){return{id:uid(),name:'New tour',artist:'',perDiem:25,party:[],shows:[],fuel:[],cur:null}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&d.tours&&d.tours.length)return d}catch(e){}const t=blankTour();return{tours:[t],cur:t.id}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));kpis()}
+const T=()=>db.tours.find(t=>t.id===db.cur)||db.tours[0];
+const S=()=>{const t=T();return t.shows.find(s=>s.id===t.cur)||t.shows[0]||null};
+const sorted=t=>[...t.shows].sort((a,b)=>(a.date||'9').localeCompare(b.date||'9'));
+const fmtD=d=>d?new Date(d+'T12:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}):'No date';
+
+function settle(s){const g=num(s.gross)+num(s.door),prs=g*num(s.prs)/100,ded=num(s.hall)+prs+num(s.engineer)+num(s.security)+num(s.otherCost),net=g-ded,mc=num(s.merch)*num(s.merchPct)/100,pctAmt=Math.max(0,net)*num(s.pct)/100;let artist;if(s.deal==='guarantee')artist=num(s.guarantee);else if(s.deal==='vs')artist=Math.max(num(s.guarantee),pctAmt);else artist=pctAmt;return{g,prs,ded,net,mc,artist,promoter:net-artist,merchNet:num(s.merch)-mc}}
+
+function kpis(){const t=T();$('#tourTitle').textContent=t.name||'Untitled tour';$('#tourSub').textContent=[t.artist,t.shows.length?fmtD(sorted(t)[0].date)+' – '+fmtD(sorted(t).at(-1).date):''].filter(Boolean).join(' · ');
+$('#kShows').textContent=t.shows.length;$('#kAdv').textContent=t.shows.length?Math.round(t.shows.filter(s=>s.advStatus==='ok').length/t.shows.length*100)+'%':'0%';
+$('#kNet').textContent=gbp(t.shows.reduce((a,s)=>a+settle(s).artist,0)).replace('.00','');
+const today=new Date().toISOString().slice(0,10),n=sorted(t).find(s=>s.date>=today);$('#kNext').textContent=n?(n.city||n.venue||fmtD(n.date)):'—';
+$('#tourPick').innerHTML=db.tours.map(x=>`<option value="${x.id}"${x.id===t.id?' selected':''}>${esc(x.name||'Untitled')}</option>`).join('')}
+
+function bindFields(){const t=T(),s=S();$$('[data-t]').forEach(el=>{el.value=t[el.dataset.t]??''});$$('[data-s]').forEach(el=>{el.value=s?(s[el.dataset.s]??(el.tagName==='SELECT'?el.options[0].value:'')):'';el.disabled=!s})}
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset.t!==undefined){T()[el.dataset.t]=el.value;save();if(['perDiem'].includes(el.dataset.t))renderRider()}else if(el.dataset.s!==undefined&&S()){S()[el.dataset.s]=el.value;save();refreshDerived()}});
+
+function render(){kpis();bindFields();renderShowBar();renderParty();renderShows();renderSlots();renderAdv();renderTravel();renderRider();renderSettle()}
+function refreshDerived(){renderShowBar(true);renderShows();curfew();advDue();mapLink();renderRider(true);renderSettle()}
+
+function renderShowBar(keep){const t=T(),bar=$('#showBar');bar.style.display=(tab==='shows'||tab==='backup')?'none':'block';$('#printDay').style.display=tab==='day'?'':'none';$('#printSettle').style.display=tab==='settle'?'':'none';
+const s=S();$('#showPick').innerHTML=t.shows.length?sorted(t).map(x=>`<option value="${x.id}"${s&&x.id===s.id?' selected':''}>${esc(fmtD(x.date)+' — '+(x.venue||'Venue tbc')+(x.city?', '+x.city:''))}</option>`).join(''):'<option>Add a show on the Tour &amp; Shows tab first</option>'}
+$('#showPick').onchange=e=>{T().cur=e.target.value;save();render()};
+
+function renderParty(){const t=T();$('#party').innerHTML=t.party.map((p,i)=>`<tr><td><input data-p="${i}" data-k="name" value="${esc(p.name)}"></td><td><input data-p="${i}" data-k="role" value="${esc(p.role)}" placeholder="Drums, FOH…"></td><td><input data-p="${i}" data-k="phone" value="${esc(p.phone)}"></td><td><input data-p="${i}" data-k="diet" value="${esc(p.diet)}" placeholder="Vegan, nut allergy…"></td><td><button class="x" data-delp="${i}">×</button></td></tr>`).join('')||'<tr><td colspan="5" class="muted">Add the band and crew.</td></tr>'}
+$('#party').addEventListener('input',e=>{const el=e.target;if(el.dataset.p===undefined)return;T().party[el.dataset.p][el.dataset.k]=el.value;save()});
+$('#party').addEventListener('click',e=>{if(e.target.dataset.delp!==undefined){T().party.splice(e.target.dataset.delp,1);save();render()}});
+$('#addPerson').onclick=()=>{T().party.push({id:uid(),name:'',role:'',phone:'',diet:''});save();renderParty()};
+
+function renderShows(){const t=T(),s=S();$('#showList').innerHTML=sorted(t).map(x=>{const st=settle(x);return`<div class="showcard${s&&x.id===s.id?' on':''}" data-open="${x.id}"><div class="d">${esc(fmtD(x.date))}</div><div><b>${esc(x.venue||'Venue tbc')}</b> <span class="muted">${esc(x.city||'')}</span></div><div class="row"><span class="pill s-${x.advStatus||'todo'}">${{todo:'To advance',wait:'Awaiting',ok:'Advanced'}[x.advStatus||'todo']}</span>${st.g?`<span class="muted">${gbp(st.artist)}</span>`:''}<button class="x" data-dels="${x.id}" title="Remove show">×</button></div></div>`}).join('')||'<p class="muted">No shows yet.</p>'}
+$('#showList').addEventListener('click',e=>{const d=e.target.dataset.dels;if(d){if(confirm('Remove this show?')){const t=T();t.shows=t.shows.filter(x=>x.id!==d);if(t.cur===d)t.cur=null;save();render()}return}const c=e.target.closest('[data-open]');if(c){T().cur=c.dataset.open;save();go('day')}});
+$('#addShow').onclick=()=>{const t=T(),s=blankShow();t.shows.push(s);t.cur=s.id;save();go('day')};
+
+function renderSlots(){const s=S();$('#slots').innerHTML=s?[...s.slots].sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(x=>`<tr><td><input type="time" data-sl="${x.id}" data-k="time" value="${esc(x.time)}"></td><td><input data-sl="${x.id}" data-k="what" value="${esc(x.what)}"></td><td><input data-sl="${x.id}" data-k="notes" value="${esc(x.notes)}"></td><td><button class="x" data-delsl="${x.id}">×</button></td></tr>`).join(''):'';curfew()}
+$('#slots').addEventListener('change',e=>{const el=e.target;if(!el.dataset.sl)return;S().slots.find(x=>x.id===el.dataset.sl)[el.dataset.k]=el.value;save();if(el.dataset.k==='time')renderSlots();curfew()});
+$('#slots').addEventListener('click',e=>{const id=e.target.dataset.delsl;if(id){S().slots=S().slots.filter(x=>x.id!==id);save();renderSlots()}});
+$('#addSlot').onclick=()=>{if(!S())return;S().slots.push({id:uid(),time:'',what:'',notes:''});save();renderSlots()};
+$('#tplDay').onclick=()=>{const s=S();if(!s)return;if(s.slots.length&&!confirm('Replace the running order with the standard template?'))return;s.slots=TPL.map(([time,what])=>({id:uid(),time,what,notes:''}));if(!s.curfew)s.curfew='23:00';save();render()};
+function curfew(){const s=S(),w=$('#curfewWarn');if(!s||!s.curfew){w.textContent='';return}const late=s.slots.filter(x=>x.time&&x.time>s.curfew&&!/load.?out/i.test(x.what));w.innerHTML=late.length?`<span style="color:var(--red)">⚠ ${late.length} item(s) run past the ${esc(s.curfew)} curfew: ${late.map(x=>esc(x.what)).join(', ')}</span>`:`✓ Running order fits the ${esc(s.curfew)} curfew.`}
+
+function renderAdv(){const s=S();$('#advChecks').innerHTML=s?ADV.map((c,i)=>`<label><input type="checkbox" data-ac="${i}"${s.advChecks[i]?' checked':''}> ${esc(c)}</label>`).join(''):'';advDue()}
+$('#advChecks').addEventListener('change',e=>{const i=e.target.dataset.ac;if(i===undefined)return;S().advChecks[i]=e.target.checked;const done=Object.values(S().advChecks).filter(Boolean).length;if(done===ADV.length)S().advStatus='ok';save();bindFields();renderShows();kpis()});
+function advDue(){const s=S(),el=$('#advDue');if(!s||!s.date){el.textContent='';return}const days=Math.round((new Date(s.date+'T12:00')-new Date())/864e5);const done=Object.values(s.advChecks).filter(Boolean).length;el.innerHTML=`${done}/${ADV.length} done · `+(days<0?'show has passed':days<=14&&s.advStatus!=='ok'?`<span style="color:var(--red)">${days} days to go – chase now</span>`:days<=21&&s.advStatus==='todo'?`<span style="color:#ffc966">${days} days to go – send advance this week</span>`:`${days} days to go`)}
+$('#mailPM').onclick=()=>{const t=T(),s=S();if(!s)return;const body=`Hi ${s.pmName||''},\n\nI'm the tour manager for ${t.artist||'the band'} on the ${t.name||''} tour, playing ${s.venue||'your venue'} on ${fmtD(s.date)}.\n\nCould you please confirm:\n- Load-in time and access\n- PA, lighting and in-house engineer\n- Stage size and backline\n- Parking / permits for our van${t.vanReg?' ('+t.vanReg+')':''}\n- Dressing room and Wi-Fi\n- Curfew and doors time\n- Hospitality / rider\n- Merch space and commission\n- Settlement contact on the night\n\nThanks,\n${t.tm||''}\n${t.tmPhone||''}`;location.href=`mailto:${encodeURIComponent(s.pmEmail||'')}?subject=${encodeURIComponent('Advance: '+(t.artist||'')+' – '+(s.venue||'')+' '+fmtD(s.date))}&body=${encodeURIComponent(body)}`};
+
+function renderTravel(){const s=S(),t=T();$('#rooms').innerHTML=s?s.rooms.map((r,i)=>`<tr><td><input data-r="${i}" data-k="no" value="${esc(r.no)}" placeholder="Room no."></td><td><select data-r="${i}" data-k="type">${['Single','Twin','Double','Triple'].map(o=>`<option${r.type===o?' selected':''}>${o}</option>`).join('')}</select></td><td><input data-r="${i}" data-k="guests" value="${esc(r.guests)}" placeholder="Names"></td><td><button class="x" data-delr="${i}">×</button></td></tr>`).join(''):'';
+$('#fuel').innerHTML=t.fuel.map((f,i)=>`<tr><td><input type="date" data-f="${i}" data-k="date" value="${esc(f.date)}"></td><td><input data-f="${i}" data-k="where" value="${esc(f.where)}"></td><td><input type="number" data-f="${i}" data-k="litres" value="${esc(f.litres)}"></td><td><input type="number" step="0.01" data-f="${i}" data-k="cost" value="${esc(f.cost)}"></td><td><input type="number" data-f="${i}" data-k="odo" value="${esc(f.odo)}"></td><td><button class="x" data-delf="${i}">×</button></td></tr>`).join('');fuelTot();mapLink()}
+function fuelTot(){const t=T();$('#fuelTot').textContent=t.fuel.length?`Total fuel: ${gbp(t.fuel.reduce((a,f)=>a+num(f.cost),0))} · ${t.fuel.reduce((a,f)=>a+num(f.litres),0)} litres`:''}
+function mapLink(){const s=S(),a=$('#mapLink');if(!s)return;a.href='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(s.travFrom||'')+'&destination='+encodeURIComponent(s.address||s.venue+' '+s.city)}
+$('#rooms').addEventListener('input',e=>{const el=e.target;if(el.dataset.r===undefined)return;S().rooms[el.dataset.r][el.dataset.k]=el.value;save()});
+$('#rooms').addEventListener('click',e=>{if(e.target.dataset.delr!==undefined){S().rooms.splice(e.target.dataset.delr,1);save();renderTravel()}});
+$('#addRoom').onclick=()=>{if(!S())return;S().rooms.push({no:'',type:'Single',guests:''});save();renderTravel()};
+$('#fuel').addEventListener('input',e=>{const el=e.target;if(el.dataset.f===undefined)return;T().fuel[el.dataset.f][el.dataset.k]=el.value;save();fuelTot()});
+$('#fuel').addEventListener('click',e=>{if(e.target.dataset.delf!==undefined){T().fuel.splice(e.target.dataset.delf,1);save();renderTravel()}});
+$('#addFuel').onclick=()=>{T().fuel.push({date:new Date().toISOString().slice(0,10),where:'',litres:'',cost:'',odo:''});save();renderTravel()};
+
+function renderRider(){const t=T(),s=S();const diets=t.party.filter(p=>p.diet);$('#dietSum').innerHTML=diets.length?'<b>Dietary needs to send the venue:</b> '+diets.map(p=>esc(p.name+' – '+p.diet)).join('; '):'Add dietary needs to the touring party to see them here.';
+if(!s){$('#pd').innerHTML='';$('#pdTot').textContent='';return}
+$('#pd').innerHTML=t.party.map(p=>{const r=s.pd[p.id]||{amt:t.perDiem,paid:false};return`<tr><td>${esc(p.name||'Unnamed')}</td><td><input type="number" step="0.5" data-pd="${p.id}" data-k="amt" value="${esc(r.amt)}"></td><td><input type="checkbox" data-pd="${p.id}" data-k="paid"${r.paid?' checked':''} style="width:auto"></td></tr>`}).join('')||'<tr><td colspan="3" class="muted">Add the touring party first.</td></tr>';pdTot()}
+function pdTot(){const t=T(),s=S();if(!s)return;let tot=0,paid=0;t.party.forEach(p=>{const r=s.pd[p.id]||{amt:t.perDiem};tot+=num(r.amt);if(r.paid)paid+=num(r.amt)});$('#pdTot').textContent=`Per diems this day: ${gbp(tot)} · paid out ${gbp(paid)}`}
+$('#pd').addEventListener('change',e=>{const el=e.target,id=el.dataset.pd;if(!id)return;const s=S(),t=T();s.pd[id]=s.pd[id]||{amt:t.perDiem,paid:false};s.pd[id][el.dataset.k]=el.type==='checkbox'?el.checked:el.value;save();pdTot()});
+
+function renderSettle(){const s=S(),el=$('#settleSum');if(!s){el.innerHTML='<p class="muted">Add a show first.</p>';return}const r=settle(s);
+el.innerHTML=`<div><span>Gross takings (tickets + door)</span><b>${gbp(r.g)}</b></div><div><span>PRS (${num(s.prs)}%)</span><span>− ${gbp(r.prs)}</span></div><div><span>Hall hire, engineer, security &amp; other</span><span>− ${gbp(r.ded-r.prs)}</span></div><div><span>Net box office</span><b>${gbp(r.net)}</b></div><div><span>Promoter / venue keeps</span><span>${gbp(r.promoter)}</span></div><div class="tot"><span>Due to artist (show)</span><span>${gbp(r.artist)}</span></div><div><span>Merch sales ${gbp(s.merch)} less ${num(s.merchPct)}% venue commission</span><span>${gbp(r.merchNet)} (venue ${gbp(r.mc)})</span></div>`}
+
+function go(v){tab=v;$$('.tab').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));render();scrollTo({top:0,behavior:'smooth'})}
+$('#tabs').onclick=e=>{if(e.target.dataset.v)go(e.target.dataset.v)};
+$('#tourPick').onchange=e=>{db.cur=e.target.value;save();render()};
+$('#newTour').onclick=()=>{const n=prompt('Tour name?');if(!n)return;const t=blankTour();t.name=n;db.tours.push(t);db.cur=t.id;save();go('shows')};
+$('#delTour').onclick=()=>{if(!confirm('Delete this whole tour from this device? Download a backup first if unsure.'))return;db.tours=db.tours.filter(t=>t.id!==db.cur);if(!db.tours.length)db.tours.push(blankTour());db.cur=db.tours[0].id;save();go('shows')};
+$('#exp').onclick=()=>{const t=T(),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(t,null,2)],{type:'application/json'}));a.download=(t.name||'tour').replace(/\W+/g,'-')+'-tm360.json';a.click()};
+$('#imp').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(x=>{try{const t=JSON.parse(x);if(!t.shows)throw 0;t.id=uid();db.tours.push(t);db.cur=t.id;save();go('shows');alert('Tour loaded.')}catch(_){alert('That file is not a TM360 tour backup.')}})};
+
+$('#printDay').onclick=()=>{const t=T(),s=S();if(!s)return;const party=t.party.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.role)}</td><td>${esc(p.phone)}</td></tr>`).join('');
+$('#print').innerHTML=`<p>TM360° DAY SHEET · ${esc(t.artist)} · ${esc(t.name)}</p><h1>${esc(fmtD(s.date))} — ${esc(s.venue)}, ${esc(s.city)}</h1><p>${esc(s.address||'')}</p>
+<table><tr><th>Time</th><th>Schedule</th><th>Notes</th></tr>${[...s.slots].sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.what)}</td><td>${esc(x.notes)}</td></tr>`).join('')}<tr><td><b>${esc(s.curfew||'')}</b></td><td colspan="2"><b>STRICT CURFEW</b></td></tr></table>
+<h3>Venue</h3><p>Production: ${esc(s.pmName||'')} ${esc(s.pmPhone||'')} · Load-in: ${esc(s.loadIn||'')} · Parking: ${esc(s.parking||'')} · Dressing room / Wi-Fi: ${esc(s.dressing||'')}</p>
+<h3>Travel &amp; hotel</h3><p>Depart ${esc(s.travFrom||'')} at ${esc(s.depart||'')} (${esc(s.drive||'?')} hrs). ${esc(s.route||'')}<br>Hotel: ${esc(s.hotel||'')} ${esc(s.hotelAddr||'')} · Check-in ${esc(s.checkIn||'')}</p>
+${s.rooms.length?`<table><tr><th>Room</th><th>Type</th><th>Guests</th></tr>${s.rooms.map(r=>`<tr><td>${esc(r.no)}</td><td>${esc(r.type)}</td><td>${esc(r.guests)}</td></tr>`).join('')}</table>`:''}
+<h3>Notes</h3><p>${esc(s.dayNotes||'')}</p>${party?`<h3>Touring party</h3><table>${party}</table>`:''}<p>Tour manager: ${esc(t.tm||'')} ${esc(t.tmPhone||'')}</p>`;print()};
+$('#printSettle').onclick=()=>{const t=T(),s=S();if(!s)return;const r=settle(s);
+$('#print').innerHTML=`<p>TM360° SETTLEMENT SHEET</p><h1>${esc(t.artist)} — ${esc(s.venue)}, ${esc(s.city)}</h1><p>${esc(fmtD(s.date))} · Promoter: ${esc(s.promoter||'')} · Capacity ${esc(s.cap||'')} · Sold ${esc(s.sold||0)} · Comps ${esc(s.comps||0)}</p>
+<table><tr><td>Ticket income</td><td>${gbp(s.gross)}</td></tr><tr><td>Door sales</td><td>${gbp(s.door)}</td></tr><tr><td><b>Gross</b></td><td><b>${gbp(r.g)}</b></td></tr><tr><td>Hall hire</td><td>− ${gbp(s.hall)}</td></tr><tr><td>PRS (${num(s.prs)}%)</td><td>− ${gbp(r.prs)}</td></tr><tr><td>Local sound engineer</td><td>− ${gbp(s.engineer)}</td></tr><tr><td>Security / staff</td><td>− ${gbp(s.security)}</td></tr><tr><td>Other costs</td><td>− ${gbp(s.otherCost)}</td></tr><tr><td><b>Net box office</b></td><td><b>${gbp(r.net)}</b></td></tr><tr><td>Deal</td><td>${esc({split:'Door split '+num(s.pct)+'% to artist',guarantee:'Guarantee '+gbp(s.guarantee),vs:gbp(s.guarantee)+' vs '+num(s.pct)+'%'}[s.deal||'split'])}</td></tr><tr><td><b>DUE TO ARTIST</b></td><td><b>${gbp(r.artist)}</b></td></tr><tr><td>Promoter / venue retains</td><td>${gbp(r.promoter)}</td></tr><tr><td>Merch sales / venue commission ${num(s.merchPct)}%</td><td>${gbp(s.merch)} / ${gbp(r.mc)}</td></tr></table><p>${esc(s.settleNotes||'')}</p>
+<div class="sig"><div>For the artist (print &amp; sign)</div><div>For the promoter / venue (print &amp; sign)</div></div>`;print()};
+render();
+</script></body></html>
