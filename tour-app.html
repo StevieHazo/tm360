@@ -53,7 +53,7 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th{text-align:left;co
 
 <div class="panel" style="margin-top:14px"><div class="row between"><h3>Tour health</h3><span class="muted" id="hNote"></span></div><div class="health"><div><span>Revenue forecast</span><strong id="hRev">£0</strong></div><div><span>Costs forecast</span><strong id="hCost">£0</strong></div><div><span>Forecast profit</span><strong id="hProf">£0</strong></div><div><span>Break-even</span><strong id="hBe">—</strong></div><div><span>Tickets sold</span><strong id="hTix">0</strong></div><div><span>Merch sold</span><strong id="hMerch">£0</strong></div></div></div>
 <nav class="tabs" id="tabs">
-<button class="tab on" data-v="shows">Tour &amp; Shows</button><button class="tab" data-v="day">Day Sheet</button><button class="tab" data-v="adv">Advancing</button><button class="tab" data-v="travel">Travel &amp; Hotels</button><button class="tab" data-v="rider">Riders &amp; Per Diems</button><button class="tab" data-v="budget">Tour Budget</button><button class="tab" data-v="settle">Settlement</button><button class="tab" data-v="backup">Backup</button>
+<button class="tab on" data-v="shows">Tour &amp; Shows</button><button class="tab" data-v="day">Day Sheet</button><button class="tab" data-v="adv">Advancing</button><button class="tab" data-v="travel">Travel &amp; Hotels</button><button class="tab" data-v="rider">Riders &amp; Per Diems</button><button class="tab" data-v="budget">Tour Budget</button><button class="tab" data-v="rcpt">Receipts</button><button class="tab" data-v="settle">Settlement</button><button class="tab" data-v="backup">Backup</button>
 </nav>
 <div class="panel" id="showBar" style="margin-top:14px;display:none"><div class="row between"><label style="flex:1;min-width:220px">Working on show<select id="showPick"></select></label><button class="btn ghost" id="printDay" style="display:none">Print crew day sheet</button><button class="btn ghost" id="printSettle" style="display:none">Print settlement sheet</button></div></div>
 
@@ -142,6 +142,21 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th{text-align:left;co
 <div class="panel"><label>Expected sell-through %<input type="range" min="0" max="100" step="5" data-b="sell" id="budSell"></label><div class="sum" id="budSum"></div></div>
 <div class="panel"><h3>Promoter vs band</h3><p class="muted">Keeps the two pots separate so nothing is counted twice. The promoter pays venue, support, marketing and the artist fee out of ticket money; the band pays its own van, hotels, fuel and per diems out of the fee and merch. Change who pays any cost below.</p><div class="sum" id="budSplit"></div></div>
 </section>
+<section class="view" id="v-rcpt">
+<div class="panel"><h3>Receipt &amp; invoice scanner</h3><p class="muted">Snap a receipt at the pump, hotel desk or venue, or upload an invoice PDF. It reads the supplier, date, amount and type of cost, you check it, and it goes straight into the Tour Budget and the promoter / band split.</p>
+<div class="row" style="gap:10px;flex-wrap:wrap"><label class="btn" style="cursor:pointer">📷 Snap receipt<input id="rcCam" type="file" accept="image/*" capture="environment" hidden></label><label class="btn ghost" style="cursor:pointer">Upload photo or PDF<input id="rcFile" type="file" accept="image/*,application/pdf" hidden></label><button class="btn ghost" id="rcManual" type="button">Type one in</button></div>
+<p id="rcMsg" class="muted" style="margin-top:10px"></p>
+<div id="rcForm" style="display:none;margin-top:12px"><div class="row" style="gap:14px;align-items:flex-start;flex-wrap:wrap"><img id="rcPrev" alt="" style="max-width:160px;max-height:220px;object-fit:contain;display:none;border:1px solid rgba(255,255,255,.15)">
+<div class="grid" style="flex:1;min-width:260px">
+<label>Supplier<input id="rcSup"></label><label>Date<input id="rcDate" type="date"></label>
+<label>Total £ (inc VAT)<input id="rcTot" type="number" step="0.01"></label><label>VAT £<input id="rcVat" type="number" step="0.01"></label>
+<label>Type of cost<select id="rcCat"></select></label><label>Show<select id="rcShow"></select></label>
+<label>Who pays<select id="rcPay"><option value="">Same as budget setting</option><option value="p">Promoter</option><option value="a">Band</option></select></label>
+<label>Reference<input id="rcRef"></label><label style="grid-column:1/-1">What for<input id="rcDesc"></label></div></div>
+<div class="row" style="gap:10px;margin-top:10px"><button class="btn" id="rcSave" type="button">Save to tour</button><button class="btn ghost" id="rcCancel" type="button">Cancel</button></div></div></div>
+<div class="panel"><h3>Budget vs actual</h3><label style="display:flex;flex-direction:row;gap:10px;align-items:center;text-align:left"><input type="checkbox" id="rcUse" style="width:auto"> Use real receipts in the Tour Budget (replaces the estimate for any type of cost that has receipts)</label><div id="rcVs" style="overflow-x:auto;margin-top:10px"></div></div>
+<div class="panel"><h3>Logged receipts</h3><div id="rcList" style="overflow-x:auto"></div></div>
+</section>
 <section class="view" id="v-settle">
 <div class="grid" style="align-items:start">
 <div class="panel"><h3>Deal</h3><div class="grid">
@@ -202,7 +217,7 @@ health();renderMiss();$('#tourPick').innerHTML=db.tours.map(x=>`<option value="$
 function bindFields(){const t=T(),s=S();$$('[data-t]').forEach(el=>{el.value=t[el.dataset.t]??''});$$('[data-s]').forEach(el=>{if(el.dataset.s==='advStatus'&&s){el.value=stOf(s);el.disabled=false;return}el.value=s?(s[el.dataset.s]??(el.tagName==='SELECT'?el.options[0].value:'')):'';el.disabled=!s})}
 document.addEventListener('input',e=>{const el=e.target;if(el.dataset.t!==undefined){T()[el.dataset.t]=el.value;save();if(['perDiem'].includes(el.dataset.t))renderRider()}else if(el.dataset.s!==undefined&&S()){S()[el.dataset.s]=el.value;save();refreshDerived()}});
 
-function render(){kpis();bindFields();renderShowBar();renderParty();renderShows();renderSlots();renderAdv();renderTasks();renderTravel();renderRider();renderSettle();renderBudget()}
+function render(){kpis();bindFields();renderShowBar();renderParty();renderShows();renderSlots();renderAdv();renderTasks();renderTravel();renderRider();renderSettle();renderBudget();renderRc()}
 function refreshDerived(){renderShowBar(true);renderShows();curfew();advDue();mapLink();renderRider(true);renderSettle()}
 
 function renderShowBar(keep){const t=T(),bar=$('#showBar');bar.style.display=(tab==='shows'||tab==='backup'||tab==='budget')?'none':'block';$('#printDay').style.display=tab==='day'?'':'none';$('#printSettle').style.display=tab==='settle'?'':'none';
@@ -255,9 +270,9 @@ function B(){const t=T();return t.budget||(t.budget={sell:60,contPct:10,prs:4.2,
 function budCalc(sell){const t=T(),b=B(),shows=sorted(t).filter(x=>!/day off/i.test(x.venue||''));const dates=sorted(t).map(x=>x.date).filter(Boolean);
 const people=num(b.people)||t.party.length||0,days=num(b.days)||new Set(dates).size,nights=b.nights!==undefined&&b.nights!==''?num(b.nights):Math.max(0,days-1),rooms=num(b.rooms)||Math.ceil(people/2),pd=b.perDiem!==undefined&&b.perDiem!==''?num(b.perDiem):num(t.perDiem);
 const c={Hotels:nights*rooms*num(b.roomRate),'Per diems':people*days*pd,'Van hire':days*num(b.van),Fuel:num(b.miles)*num(b.ppm)/100,'Crew wages':days*num(b.crewDay),'Support acts':shows.length*num(b.supportShow),Backline:num(b.backline),Marketing:num(b.marketing),Insurance:num(b.insurance),Other:num(b.other)};
-let base=Object.values(c).reduce((a,v)=>a+v,0);c.Contingency=base*num(b.contPct)/100;
+const act=b.useActual?rcAct():null;if(act)Object.keys(c).forEach(k=>{if(act[k])c[k]=act[k]});let base=Object.values(c).reduce((a,v)=>a+v,0);c.Contingency=base*num(b.contPct)/100;
 let hire=0,inc=0,fixed=0,perPct=0;shows.forEach(x=>{const r=b.shows[x.id]||{};const share=(r.share===undefined||r.share==='')?(num(r.guar)?0:100):num(r.share);const pot=num(r.cap)*num(r.price)*(1-num(b.prs)/100)*share/100;hire+=num(r.hire);fixed+=num(r.guar);perPct+=pot;});
-c['Hall hire']=hire;const cost=Object.values(c).reduce((a,v)=>a+v,0);const merch=shows.length*num(b.merch);inc=fixed+merch+perPct*sell/100;
+c['Hall hire']=act&&act['Hall hire']?act['Hall hire']:hire;const cost=Object.values(c).reduce((a,v)=>a+v,0);const merch=shows.length*num(b.merch);inc=fixed+merch+perPct*sell/100;
 const be=perPct>0?Math.max(0,(cost-fixed-merch)/perPct*100):null;return{c,cost,inc,net:inc-cost,be,people,days,nights,rooms,shows,perPct,fixed,merch}}
 function renderBudget(){const t=T(),b=B();$$('[data-b]').forEach(el=>{el.value=b[el.dataset.b]??''});
 $('#budShows').innerHTML=sorted(t).filter(x=>!/day off/i.test(x.venue||'')).map(x=>{const r=b.shows[x.id]||{};const f=k=>`<td><input type="number" data-bs="${x.id}" data-k="${k}" value="${esc(r[k]??'')}"${k==='share'?' placeholder="0"':''}></td>`;return`<tr><td><b>${esc(fmtD(x.date))}</b><br><span class="muted">${esc(x.venue||'')}</span></td>${f('cap')}${f('price')}${f('guar')}${f('share')}${f('hire')}</tr>`}).join('')||'<tr><td colspan="6" class="muted">Add shows first.</td></tr>';budSum()}
@@ -273,7 +288,7 @@ $('#budSum').innerHTML=`<p><b>At ${sell}% sold:</b> income ${gbp(r.inc)} − cos
 const PROMO_DEF=['Support acts','Marketing','Hall hire'];
 function owner(k){const b=B();b.owner=b.owner||{};return b.owner[k]||(PROMO_DEF.includes(k)?'p':'a')}
 function budSplit(sell){const t=T(),b=B(),r=budCalc(sell);let tix=0,prs=0,artistPay=0;r.shows.forEach(x=>{const q=b.shows[x.id]||{};const g=num(q.cap)*num(q.price)*sell/100;const pr=g*num(b.prs)/100;tix+=g;prs+=pr;const share=(q.share===undefined||q.share==='')?(num(q.guar)?0:100):num(q.share);artistPay+=num(q.guar)+(g-pr)*share/100});
-const pc={},ac={};let pb=0,ab=0;Object.entries(r.c).forEach(([k,v])=>{if(k==='Contingency')return;if(owner(k)==='p'){pc[k]=v;pb+=v}else{ac[k]=v;ab+=v}});
+const pc={},ac={};let pb=0,ab=0;const act=b.useActual?rcAct():{};Object.entries(r.c).forEach(([k,v])=>{if(k==='Contingency'||act[k])return;if(owner(k)==='p'){pc[k]=v;pb+=v}else{ac[k]=v;ab+=v}});if(b.useActual)RC().forEach(x=>{const w=(x.payer||owner(x.cat))==='p'?pc:ac,v=num(x.total);w[x.cat]=(w[x.cat]||0)+v;if(w===pc)pb+=v;else ab+=v});
 const cp=num(b.contPct)/100;pc['Contingency']=pb*cp;ac['Contingency']=ab*cp;
 const pCost=pb*(1+cp)+prs+artistPay,aCost=ab*(1+cp);return{tix,prs,artistPay,pc,ac,pNet:tix-pCost,pCost,aInc:artistPay+r.merch,aCost,aNet:artistPay+r.merch-aCost,merch:r.merch}}
 function renderSplit(){const el=$('#budSplit');if(!el)return;const b=B(),sell=num(b.sell),x=budSplit(sell),r=budCalc(sell);const row=(k,v,neg)=>`<p style="display:flex;justify-content:space-between;gap:12px;margin:0;padding:3px 0"><span>${k}</span><b>${neg?'− ':''}${gbp(v)}</b></p>`;const col=v=>`color:${v>=0?'var(--acid)':'#ff8a8a'}`;
@@ -331,4 +346,37 @@ $('#gritsList').addEventListener('click',e=>{const id=e.target.dataset.gadd;if(!
 const _renderSettle=renderSettle;renderSettle=function(){_renderSettle();const s=S();if(!s||!s.grits)return;const e=s.grits,gb=p=>p==null?'—':gbp(p/100);
  $('#settleSum').insertAdjacentHTML('afterbegin',`<div class="tot"><span>Live from GRITS (${esc(new Date(T().gritsAt||Date.now()).toLocaleString('en-GB',{dateStyle:'short',timeStyle:'short'}))})</span><span></span></div><div><span>Tickets sold ${e.capacity?'of '+e.capacity:''} · comps ${e.comps||0}</span><b>${e.tickets}</b></div><div><span>Scanned in at the door</span><span>${e.checked_in}</span></div><div><span>Online ticket takings (fans paid no booking fee)</span><span>${gb(e.gross_pence)}</span></div>${(e.tiers||[]).map(x=>`<div><span>· ${esc(x.name)} @ ${gbp(x.price)}</span><span>${x.sold}${x.quantity?' / '+x.quantity:''}</span></div>`).join('')}<div><span>Merch pre-orders (${e.merch.orders}: ${e.merch.collect||0} collect, ${e.merch.post||0} post)</span><span>${gb(e.merch.pence)}</span></div>${Object.entries(e.merch.items||{}).map(([k,v])=>`<div><span>· ${esc(k)}</span><span>×${v}</span></div>`).join('')}<hr>`)};
 gUI();if(gS())gSync();
+
+/* ---- Receipt & invoice scanner ---- */
+const RC_CATS=['Hotels','Per diems','Van hire','Fuel','Crew wages','Support acts','Backline','Marketing','Insurance','Hall hire','Other'];
+const RAPI='https://gigs.grits.rocks/api/tour-scan';let rcEdit=null,rcImg='';
+function RC(){const t=T();return t.receipts||(t.receipts=[])}
+function rcAct(){const a={};RC().forEach(r=>{a[r.cat]=(a[r.cat]||0)+num(r.total)});return a}
+function rcMsg(m){$('#rcMsg').textContent=m}
+function rcShowFor(d){const sh=sorted(T());if(!d)return'';const x=sh.find(s=>s.date===d);if(x)return x.id;const prev=sh.filter(s=>s.date&&s.date<=d).at(-1);return prev?prev.id:''}
+function rcOpen(f,id){rcEdit=id||null;const sh=sorted(T());$('#rcCat').innerHTML=RC_CATS.map(c=>`<option>${c}</option>`).join('');$('#rcShow').innerHTML='<option value="">Whole tour</option>'+sh.map(s=>`<option value="${s.id}">${esc(fmtD(s.date))} · ${esc(s.venue||'')}</option>`).join('');
+f=f||{};$('#rcSup').value=f.supplier||'';$('#rcDate').value=f.date||'';$('#rcTot').value=f.total??'';$('#rcVat').value=f.vat??'';$('#rcCat').value=f.cat||f.category||'Other';$('#rcShow').value=f.show??rcShowFor(f.date);$('#rcPay').value=f.payer||'';$('#rcRef').value=f.reference||f.ref||'';$('#rcDesc').value=f.description||f.desc||'';
+rcImg=f.img||rcImg;$('#rcPrev').src=rcImg;$('#rcPrev').style.display=rcImg?'block':'none';$('#rcForm').style.display='block';$('#rcForm').scrollIntoView({behavior:'smooth',block:'center'})}
+function rcClose(){$('#rcForm').style.display='none';rcEdit=null;rcImg=''}
+function rcShrink(file,max,q){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',q))};im.onerror=()=>no(new Error('Could not open that image'));im.src=u})}
+const rcB64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result));r.onerror=no;r.readAsDataURL(f)});
+async function rcScan(file){if(!file)return;rcImg='';let data,mime;try{if(file.type==='application/pdf'){if(file.size>3.5e6){rcMsg('That PDF is too big — please use one under 3.5MB.');return}data=(await rcB64(file)).split(',')[1];mime='application/pdf'}else{const big=await rcShrink(file,1600,.82);rcImg=await rcShrink(file,420,.6);data=big.split(',')[1];mime='image/jpeg'}}catch(e){rcMsg(e.message);return}
+const tok=await gToken();if(!tok){rcMsg('Connect your GRITS account (Tour & Shows tab) to read receipts automatically. You can type this one in below.');rcOpen({});return}
+rcMsg('Reading receipt…');try{const r=await fetch(RAPI,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+tok},body:JSON.stringify({data,mime_type:mime})});const d=await r.json();if(!r.ok||!d.ok){rcMsg((d.error||'Could not read it')+' — please check and fill in below.');rcOpen({});return}
+const f=d.fields;rcMsg(f.confidence>=.75?'Read it ✓ — check the details and save.':'Read it, but not confidently — please check every box before saving.');rcOpen(f)}catch(e){rcMsg('Could not reach the scanner — please type it in below.');rcOpen({})}}
+$('#rcCam').onchange=e=>{rcScan(e.target.files[0]);e.target.value=''};$('#rcFile').onchange=e=>{rcScan(e.target.files[0]);e.target.value=''};
+$('#rcManual').onclick=()=>{rcImg='';rcMsg('');rcOpen({})};$('#rcCancel').onclick=()=>{rcClose();rcMsg('')};
+$('#rcSave').onclick=()=>{const tot=num($('#rcTot').value);if(!$('#rcSup').value.trim()||!tot){rcMsg('Add at least a supplier and a total.');return}
+const r={id:rcEdit||uid(),supplier:$('#rcSup').value.trim(),date:$('#rcDate').value,total:tot,vat:$('#rcVat').value===''?null:num($('#rcVat').value),cat:$('#rcCat').value,show:$('#rcShow').value,payer:$('#rcPay').value,ref:$('#rcRef').value.trim(),desc:$('#rcDesc').value.trim(),img:rcImg,added:new Date().toISOString()};
+const L=RC(),i=L.findIndex(x=>x.id===r.id);if(i>=0)L[i]=r;else L.push(r);try{save()}catch(e){r.img='';save()}rcClose();rcMsg('Saved — the Tour Budget has been updated.');render()};
+$('#rcUse').onchange=e=>{B().useActual=e.target.checked;save();render()};
+$('#rcList').addEventListener('click',e=>{const b=e.target.closest('[data-rc]');if(!b)return;const L=RC(),r=L.find(x=>x.id===b.dataset.rc);if(!r)return;if(b.dataset.a==='del'){if(!confirm('Delete this receipt?'))return;L.splice(L.indexOf(r),1);save();render()}else if(b.dataset.a==='view'&&r.img){const w=open();w.document.write('<img src="'+r.img+'" style="max-width:100%">')}else{rcImg=r.img||'';rcOpen(r,r.id)}});
+function renderRc(){if(!window.RC_READY||!$('#rcList'))return;const t=T(),b=B(),L=[...RC()].sort((a,c)=>(c.date||'').localeCompare(a.date||''));$('#rcUse').checked=!!b.useActual;
+const est=(()=>{const u=b.useActual;b.useActual=false;const r=budCalc(num(b.sell)).c;b.useActual=u;return r})(),act=rcAct();
+const own=k=>((b.owner||{})[k])||(['Support acts','Marketing','Hall hire'].includes(k)?'p':'a');
+let te=0,ta=0;const rows=RC_CATS.map(k=>{const e=num(est[k]),a=num(act[k]);te+=e;ta+=a;if(!e&&!a)return'';const d=e-a;return`<tr><td>${k}</td><td>${own(k)==='p'?'Promoter':'Band'}</td><td>${gbp(e)}</td><td>${gbp(a)}</td><td style="color:${d>=0?'var(--acid)':'#ff8a8a'}">${d>=0?'':'− '}${gbp(Math.abs(d))}${d>=0?' under':' over'}</td></tr>`}).join('');
+$('#rcVs').innerHTML=rows?`<table><thead><tr><th>Type of cost</th><th>Paid by</th><th>Budget</th><th>Actual</th><th>Difference</th></tr></thead><tbody>${rows}<tr><td><b>Total</b></td><td></td><td><b>${gbp(te)}</b></td><td><b>${gbp(ta)}</b></td><td></td></tr></tbody></table>`:'<p class="muted">Fill in the Tour Budget or log a receipt to compare.</p>';
+const sh=Object.fromEntries(t.shows.map(s=>[s.id,s]));
+$('#rcList').innerHTML=L.length?`<table><thead><tr><th>Date</th><th>Supplier</th><th>Type</th><th>Show</th><th>Paid by</th><th>Total</th><th></th></tr></thead><tbody>${L.map(r=>`<tr><td>${esc(r.date?fmtD(r.date):'—')}</td><td><b>${esc(r.supplier)}</b>${r.desc?'<br><span class="muted">'+esc(r.desc)+'</span>':''}</td><td>${esc(r.cat)}</td><td>${r.show&&sh[r.show]?esc(sh[r.show].venue||fmtD(sh[r.show].date)):'Whole tour'}</td><td>${(r.payer||own(r.cat))==='p'?'Promoter':'Band'}</td><td><b>${gbp(r.total)}</b></td><td style="white-space:nowrap">${r.img?`<button class="btn ghost" data-rc="${r.id}" data-a="view" type="button">Photo</button> `:''}<button class="btn ghost" data-rc="${r.id}" data-a="edit" type="button">Edit</button> <button class="btn ghost" data-rc="${r.id}" data-a="del" type="button">Delete</button></td></tr>`).join('')}</tbody></table><p style="margin-top:8px"><b>${L.length} receipts · ${gbp(L.reduce((a,r)=>a+num(r.total),0))}</b></p>`:'<p class="muted">No receipts yet.</p>'}
+window.RC_READY=true;renderRc();
 </script></body></html>
